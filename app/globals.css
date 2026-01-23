@@ -1,26 +1,397 @@
 @import "tailwindcss";
 
-:root {
-  --background: #ffffff;
-  --foreground: #171717;
-}
+@theme {
+  /* === ТЁМНАЯ ПРЕМИАЛЬНАЯ ПАЛИТРА === */
+  --color-background: #0a0a0a;
+  --color-background-card: #141414;
+  --color-background-elevated: #1a1a1a;
+  --color-background-soft: #0f0f0f;
 
-@theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
-}
+  --color-text-primary: #ffffff;
+  --color-text-secondary: #a0a0a0;
+  --color-text-muted: #666666;
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
+  /* Персиковый/Nude акцент - более насыщенный */
+  --color-accent: #F5C4B4;
+  --color-accent-hover: #fad4c6;
+  --color-accent-light: rgba(245, 196, 180, 0.15);
+  --color-accent-glow: rgba(245, 196, 180, 0.4);
+
+  --color-border: #2a2a2a;
+  --color-border-light: #1f1f1f;
+
+  /* Градиенты для текста */
+  --color-gradient-start: #ffffff;
+  --color-gradient-mid: #F5C4B4;
+  --color-gradient-end: #ffffff;
+
+  /* Шрифты */
+  --font-montserrat: 'Montserrat', sans-serif;
+  --font-inter: 'Inter', sans-serif;
+
+  /* Анимации */
+  --animate-gradient-shift: gradient-shift 4s ease infinite;
+  --animate-slow-shimmer: slow-shimmer 8s ease-in-out infinite;
+  --animate-pulse-soft: pulse-soft 2s ease-in-out infinite;
+  --animate-breathing: breathing 3s ease-in-out infinite;
+  --animate-float: float 3s ease-in-out infinite;
+  --animate-ripple: ripple 0.6s ease-out forwards;
+  --animate-glow: glow 0.3s ease-out forwards;
+  --animate-slide-up: slide-up 0.5s ease-out forwards;
+  --animate-fade-in: fade-in 0.5s ease-out forwards;
+
+  @keyframes gradient-shift {
+    0%, 100% {
+      background-position: 0% 50%;
+    }
+    50% {
+      background-position: 100% 50%;
+    }
+  }
+
+  /* Медленный shimmer для "Удивляй" */
+  @keyframes slow-shimmer {
+    0%, 100% {
+      background-position: 0% 50%;
+    }
+    50% {
+      background-position: 100% 50%;
+    }
+  }
+
+  /* Breathing для CTA кнопки */
+  @keyframes breathing {
+    0%, 100% {
+      box-shadow: 0 0 20px rgba(245, 196, 180, 0.2);
+    }
+    50% {
+      box-shadow: 0 0 40px rgba(245, 196, 180, 0.4);
+    }
+  }
+
+  @keyframes pulse-soft {
+    0%, 100% {
+      opacity: 1;
+      transform: scale(1);
+    }
+    50% {
+      opacity: 0.9;
+      transform: scale(1.01);
+    }
+  }
+
+  @keyframes float {
+    0%, 100% {
+      transform: translateY(0);
+    }
+    50% {
+      transform: translateY(-10px);
+    }
+  }
+
+  @keyframes ripple {
+    0% {
+      transform: scale(0);
+      opacity: 0.5;
+    }
+    100% {
+      transform: scale(4);
+      opacity: 0;
+    }
+  }
+
+  @keyframes glow {
+    0% {
+      filter: drop-shadow(0 0 0 transparent);
+    }
+    50% {
+      filter: drop-shadow(0 0 12px var(--color-accent-glow));
+    }
+    100% {
+      filter: drop-shadow(0 0 4px var(--color-accent-glow));
+    }
+  }
+
+  @keyframes slide-up {
+    from {
+      opacity: 0;
+      transform: translateY(20px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+
+  @keyframes fade-in {
+    from {
+      opacity: 0;
+    }
+    to {
+      opacity: 1;
+    }
   }
 }
 
+/* === БАЗОВЫЕ СТИЛИ === */
+html {
+  scroll-behavior: smooth;
+  -webkit-tap-highlight-color: transparent;
+  overflow-x: hidden;
+}
+
 body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  font-family: var(--font-inter);
+  background: var(--color-background);
+  color: var(--color-text-primary);
+  overflow-x: hidden;
+  overscroll-behavior-x: none;
+}
+
+/* Блокировка горизонтального скролла на мобильных */
+html, body {
+  max-width: 100vw;
+  touch-action: pan-y;
+  overscroll-behavior-x: none;
+}
+
+/* Дополнительная защита от горизонтального скролла */
+#__next, main {
+  overflow-x: hidden;
+  max-width: 100vw;
+}
+
+/* === SCROLL SNAP ДЛЯ FULLSCREEN СЕКЦИЙ === */
+.snap-container {
+  height: 100vh;
+  height: 100dvh; /* Dynamic viewport height для мобильных */
+  overflow-y: scroll;
+  overflow-x: hidden;
+  scroll-snap-type: y mandatory;
+  scroll-behavior: smooth;
+  -webkit-overflow-scrolling: touch;
+  overscroll-behavior: none;
+}
+
+.snap-section {
+  min-height: 100vh;
+  min-height: 100dvh;
+  scroll-snap-align: start;
+  scroll-snap-stop: always;
+  position: relative;
+  display: flex;
+  flex-direction: column;
+}
+
+/* === ГРАДИЕНТНЫЙ АНИМИРОВАННЫЙ ТЕКСТ === */
+.gradient-text {
+  background: linear-gradient(
+    90deg,
+    var(--color-gradient-start) 0%,
+    var(--color-gradient-mid) 25%,
+    var(--color-gradient-end) 50%,
+    var(--color-gradient-mid) 75%,
+    var(--color-gradient-start) 100%
+  );
+  background-size: 200% 100%;
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+  animation: gradient-shift 4s ease infinite;
+}
+
+/* Медленный shimmer только для "Удивляй" */
+.slow-shimmer {
+  background: linear-gradient(
+    90deg,
+    #ffffff 0%,
+    #F5C4B4 20%,
+    #ffffff 40%,
+    #F5C4B4 60%,
+    #ffffff 80%,
+    #F5C4B4 100%
+  );
+  background-size: 300% 100%;
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+  animation: slow-shimmer 8s ease-in-out infinite;
+}
+
+/* === СТИЛИ ДЛЯ МОДАЛОК === */
+.modal-backdrop {
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  background: rgba(0, 0, 0, 0.8);
+}
+
+/* === КАСТОМНЫЙ СКРОЛЛБАР === */
+::-webkit-scrollbar {
+  width: 4px;
+}
+
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--color-border);
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: var(--color-text-muted);
+}
+
+/* Скрыть скроллбар на мобильных */
+@media (max-width: 768px) {
+  .snap-container::-webkit-scrollbar {
+    display: none;
+  }
+  .snap-container {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+  }
+}
+
+/* === SAFE AREA ДЛЯ МОБИЛЬНЫХ === */
+.safe-bottom {
+  padding-bottom: env(safe-area-inset-bottom, 0);
+}
+
+.safe-top {
+  padding-top: env(safe-area-inset-top, 0);
+}
+
+/* === RIPPLE ЭФФЕКТ === */
+.ripple-container {
+  position: relative;
+  overflow: hidden;
+}
+
+.ripple {
+  position: absolute;
+  border-radius: 50%;
+  background: var(--color-accent-glow);
+  pointer-events: none;
+  animation: ripple 0.6s ease-out forwards;
+}
+
+/* === ГОЛОСОВОЕ СООБЩЕНИЕ В СТИЛЕ TG === */
+.voice-waveform {
+  display: flex;
+  align-items: center;
+  gap: 2px;
+  height: 32px;
+}
+
+.voice-waveform-bar {
+  width: 3px;
+  background: currentColor;
+  border-radius: 2px;
+  transition: height 0.1s ease;
+}
+
+/* === КНОПКА ПЛЕЙ В СТИЛЕ TG === */
+.play-button {
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  background: var(--color-accent);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--color-background);
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.play-button:active {
+  transform: scale(0.95);
+}
+
+.play-button:hover {
+  box-shadow: 0 0 20px var(--color-accent-glow);
+}
+
+/* === СЛАЙДЕР ДО/ПОСЛЕ === */
+.before-after-slider {
+  touch-action: pan-y pinch-zoom;
+  user-select: none;
+}
+
+.slider-handle {
+  touch-action: none;
+}
+
+/* === НИЖНЯЯ НАВИГАЦИЯ === */
+.bottom-nav {
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  background: rgba(10, 10, 10, 0.9);
+  border-top: 1px solid var(--color-border);
+}
+
+/* === АДАПТИВНЫЕ ОТСТУПЫ ДЛЯ СЕКЦИЙ === */
+.section-padding {
+  padding-left: max(1.25rem, env(safe-area-inset-left));
+  padding-right: max(1.25rem, env(safe-area-inset-right));
+}
+
+/* === КАРТОЧКИ === */
+.card {
+  background: var(--color-background-card);
+  border: 1px solid var(--color-border);
+  border-radius: 16px;
+}
+
+.card-elevated {
+  background: var(--color-background-elevated);
+  border: 1px solid var(--color-border);
+  border-radius: 20px;
+}
+
+/* === PILL HEADER (как @ARINA.VISA) === */
+.header-pill {
+  background: transparent;
+  border: 1px solid var(--color-border);
+  border-radius: 999px;
+  padding: 8px 16px;
+}
+
+/* === BREATHING BUTTON === */
+.breathing-button {
+  animation: breathing 3s ease-in-out infinite;
+}
+
+/* === GLOW EFFECT === */
+.glow-accent {
+  box-shadow: 0 0 20px var(--color-accent-glow);
+}
+
+/* === GLASS EFFECT === */
+.glass {
+  background: rgba(20, 20, 20, 0.8);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid var(--color-border);
+}
+
+/* === КРУГОВОЙ ВРАЩАЮЩИЙСЯ ТЕКСТ === */
+@keyframes spin-slow {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.circular-text {
+  animation: spin-slow 15s linear infinite;
+}
+
+/* === КНОПКА 75% ШИРИНЫ === */
+.btn-75 {
+  width: 75%;
+  max-width: 280px;
 }
