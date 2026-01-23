@@ -93,6 +93,7 @@ export type ProgramWeekItem = {
   id: string;
   type: ProgramMediaType;
   src: string;
+  poster?: string;
 };
 
 export type ProgramWeek = {
@@ -108,9 +109,19 @@ export const PROGRAM_WEEKS: ProgramWeek[] = [
     items: [
       { id: 'w1-1', type: 'image', src: '/images/program/me.jpg' },
       { id: 'w1-2', type: 'image', src: '/images/program/mee.jpg' },
-      { id: 'w1-3', type: 'image', src: '/images/program/me.mp4' },
+      {
+        id: 'w1-3',
+        type: 'video',
+        src: '/images/program/me.mp4',
+        poster: '/images/program/me.jpg',
+      },
       { id: 'w1-4', type: 'image', src: '/images/program/mee.jpg' },
-      { id: 'w1-5', type: 'image', src: '/images/program/me.mp4' },
+      {
+        id: 'w1-5',
+        type: 'video',
+        src: '/images/program/me.mp4',
+        poster: '/images/program/mee.jpg',
+      },
       { id: 'w1-6', type: 'image', src: '/images/program/me.jpg' },
     ],
   },
@@ -119,23 +130,43 @@ export const PROGRAM_WEEKS: ProgramWeek[] = [
     icon: '/images/icons/week2.png',
     items: [
       { id: 'w2-1', type: 'image', src: '/images/program/mee.jpg' },
-      { id: 'w2-2', type: 'image', src: '/images/program/me.mp4' },
+      {
+        id: 'w2-2',
+        type: 'video',
+        src: '/images/program/me.mp4',
+        poster: '/images/program/me.jpg',
+      },
       { id: 'w2-3', type: 'image', src: '/images/program/me.jpg' },
       { id: 'w2-4', type: 'image', src: '/images/program/me.jpg' },
       { id: 'w2-5', type: 'image', src: '/images/program/mee.jpg' },
-      { id: 'w2-6', type: 'image', src: '/images/program/me.mp4' },
+      {
+        id: 'w2-6',
+        type: 'video',
+        src: '/images/program/me.mp4',
+        poster: '/images/program/mee.jpg',
+      },
     ],
   },
   {
     week: 3,
     icon: '/images/icons/week3.png',
     items: [
-      { id: 'w3-1', type: 'image', src: '/images/program/me.mp4' },
+      {
+        id: 'w3-1',
+        type: 'video',
+        src: '/images/program/me.mp4',
+        poster: '/images/program/me.jpg',
+      },
       { id: 'w3-2', type: 'image', src: '/images/program/me.jpg' },
       { id: 'w3-3', type: 'image', src: '/images/program/mee.jpg' },
       { id: 'w3-4', type: 'image', src: '/images/program/mee.jpg' },
       { id: 'w3-5', type: 'image', src: '/images/program/me.jpg' },
-      { id: 'w3-6', type: 'image', src: '/images/program/me.mp4' },
+      {
+        id: 'w3-6',
+        type: 'video',
+        src: '/images/program/me.mp4',
+        poster: '/images/program/me.jpg',
+      },
     ],
   },
 ];

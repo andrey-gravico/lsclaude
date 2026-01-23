@@ -64,7 +64,7 @@ export default function Modal({
             className={cn(
               'relative z-10 bg-background-card border border-border rounded-2xl shadow-2xl',
               fullScreen
-                ? 'w-full max-w-sm max-h-[75vh]'
+                ? 'w-[90vw] max-w-none h-[80vh] max-h-[80vh]'
                 : 'w-full max-w-sm max-h-[70vh]',
               'overflow-hidden',
               className
@@ -91,7 +91,14 @@ export default function Modal({
             </div>
 
             {/* Content */}
-            <div className="overflow-y-auto max-h-[calc(70vh-4rem)]">{children}</div>
+            <div
+              className={cn(
+                'overflow-y-auto',
+                fullScreen ? 'max-h-[calc(80vh-4rem)]' : 'max-h-[calc(70vh-4rem)]'
+              )}
+            >
+              {children}
+            </div>
           </motion.div>
         </div>
       )}

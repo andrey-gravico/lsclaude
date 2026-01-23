@@ -1,17 +1,47 @@
 'use client';
 
-import { useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import Image from 'next/image';
 import Button from '@/components/ui/Button';
 import Modal from '@/components/ui/Modal';
 import { ABOUT_TEACHER, TELEGRAM_LINK, PROGRAM_WEEKS, IMAGES } from '@/lib/constants';
+import type { ProgramWeekItem } from '@/lib/constants';
 import { scrollToSection } from '@/lib/utils';
 
 export default function ProgramSection() {
   const [activeWeek, setActiveWeek] = useState(0);
   const [isAboutOpen, setIsAboutOpen] = useState(false);
-  const [selectedMedia, setSelectedMedia] = useState<{ type: string; src: string } | null>(null);
+  const [selectedMedia, setSelectedMedia] = useState<ProgramWeekItem | null>(null);
+  const sliderRef = useRef<HTMLDivElement>(null);
+  const [sliderWidth, setSliderWidth] = useState(0);
+  const modalVideoRef = useRef<HTMLVideoElement>(null);
+  const [isVideoPaused, setIsVideoPaused] = useState(false);
+
+  useEffect(() => {
+    const updateWidth = () => {
+      if (sliderRef.current) {
+        setSliderWidth(sliderRef.current.offsetWidth);
+      }
+    };
+    updateWidth();
+    window.addEventListener('resize', updateWidth);
+    return () => window.removeEventListener('resize', updateWidth);
+  }, []);
+
+  useEffect(() => {
+    if (selectedMedia?.type === 'video') {
+      setIsVideoPaused(false);
+      const video = modalVideoRef.current;
+      if (video) {
+        video.currentTime = 0;
+        const playPromise = video.play();
+        if (playPromise) {
+          playPromise.catch(() => {});
+        }
+      }
+    }
+  }, [selectedMedia]);
 
   const handleSwipe = (direction: 'left' | 'right') => {
     if (direction === 'left' && activeWeek < PROGRAM_WEEKS.length - 1) {
@@ -145,14 +175,16 @@ export default function ProgramSection() {
         </div>
 
         {/* === Свайпаемая сетка контента === */}
-        <div className="flex-1 overflow-hidden w-screen -mx-4">
+        <div ref={sliderRef} className="flex-1 overflow-hidden w-screen -mx-4">
           <motion.div
             className="flex h-full"
-            animate={{ x: `-${activeWeek * 100}%` }}
+            initial={false}
+            animate={{ x: -activeWeek * sliderWidth }}
             transition={{ type: 'spring', stiffness: 300, damping: 30 }}
             drag="x"
-            dragConstraints={{ left: 0, right: 0 }}
-            dragElastic={0}
+            dragConstraints={{ left: -sliderWidth * (PROGRAM_WEEKS.length - 1), right: 0 }}
+            dragElastic={0.1}
+            dragMomentum={false}
             onDragEnd={(_, info) => {
               if (info.offset.x > 50) handleSwipe('right');
               else if (info.offset.x < -50) handleSwipe('left');
@@ -175,8 +207,9 @@ export default function ProgramSection() {
                         item.type === 'video' ? (
                           <video
                             src={item.src}
-                            className="w-full h-full object-cover"
-                            muted
+                            poster={item.poster}
+                            className="w-full h-full object-cover pointer-events-none"
+                            preload="auto"
                             playsInline
                           />
                         ) : (
@@ -273,23 +306,31 @@ export default function ProgramSection() {
         fullScreen
       >
         {selectedMedia && (
-          <div className="relative w-full h-full bg-background flex items-center justify-center p-4">
-            {selectedMedia.type === 'video' ? (
-              <video
-                src={selectedMedia.src}
-                className="max-w-full max-h-full"
-                controls
-                autoPlay
-              />
-            ) : (
-              <Image
-                src={selectedMedia.src}
-                alt=""
-                fill
-                className="object-contain"
-                unoptimized
-              />
-            )}
+          <div className="relative w-full h-full bg-background flex items-center justify-center">
+            <div className="relative w-[80vw] h-[80vh]">
+              {selectedMedia.type === 'video' ? (
+                <video
+                  ref={modalVideoRef}
+                  src={selectedMedia.src}
+                  className="w-full h-full object-contain"
+                  controls={isVideoPaused}
+                  autoPlay
+                  preload="auto"
+                  playsInline
+                  onPlay={() => setIsVideoPaused(false)}
+                  onPause={() => setIsVideoPaused(true)}
+                  onEnded={() => setIsVideoPaused(true)}
+                />
+              ) : (
+                <Image
+                  src={selectedMedia.src}
+                  alt=""
+                  fill
+                  className="object-contain"
+                  unoptimized
+                />
+              )}
+            </div>
           </div>
         )}
       </Modal>
