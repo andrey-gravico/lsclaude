@@ -104,17 +104,11 @@ export default function BeforeAfterSlider({
           isDragging && 'scale-110'
         )}>
           <svg className="w-5 h-5 text-background" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 9l4-4 4 4M8 15l4 4 4-4" />
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 8l-4 4 4 4M15 8l4 4-4 4" />
           </svg>
         </div>
       </div>
 
-      {/* Hint */}
-      {showHint && (
-        <div className="absolute bottom-4 left-1/2 -translate-x-1/2 px-4 py-2 bg-background/70 text-text-primary text-xs rounded-full backdrop-blur-sm pointer-events-none border border-border">
-          ← Перетащите →
-        </div>
-      )}
     </div>
   );
 }

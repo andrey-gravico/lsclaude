@@ -2,6 +2,7 @@ import type { Metadata, Viewport } from 'next';
 import { Inter, Montserrat } from 'next/font/google';
 import Script from 'next/script';
 import './globals.css';
+import { AgentationOverlay } from '@/components/AgentationOverlay';
 
 const inter = Inter({
   subsets: ['latin', 'cyrillic'],
@@ -102,6 +103,7 @@ export default function RootLayout({
       </head>
       <body className="font-inter antialiased bg-background text-text-primary">
         {children}
+        <AgentationOverlay />
 
         {/* Яндекс.Метрика - активируется только при наличии реального ID */}
         {YM_ID && (

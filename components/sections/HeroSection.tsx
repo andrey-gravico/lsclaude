@@ -24,24 +24,25 @@ export default function HeroSection() {
         transition={{ duration: 0.5 }}
         className="pt-2 safe-top"
       >
-        <div className="header-pill flex items-center justify-between">
-          {/* Left - Точка + текст (уменьшен в 1.5 раза) */}
+        <div className="pt-4 pl-3 pr-4 flex items-center justify-between">
+          {/* Left - стрелка + @username */}
+          <a
+            href={TELEGRAM_LINK}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="flex items-center gap-1 text-[8px] md:text-[9px] font-medium text-text-secondary hover:text-accent transition-colors uppercase tracking-wider"
+          >
+            <span className="text-xs">‹</span>
+            @LITTLESVETA
+          </a>
+
+          {/* Right - точка + текст */}
           <div className="flex items-center gap-1.5">
             <span className="w-1.5 h-1.5 rounded-full bg-accent" />
             <span className="text-[8px] md:text-[9px] font-medium text-text-primary uppercase tracking-wider">
               Курс по мобильной съёмке
             </span>
           </div>
-
-          {/* Right - @username (уменьшен в 1.5 раза) */}
-          <a
-            href={TELEGRAM_LINK}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="text-[8px] md:text-[9px] font-medium text-text-secondary hover:text-accent transition-colors uppercase tracking-wider"
-          >
-            @littlesveta
-          </a>
         </div>
       </motion.header>
 
@@ -68,72 +69,66 @@ export default function HeroSection() {
                 <defs>
                   <path
                     id="circlePath"
-                    d="M 50,50 m -42,0 a 42,42 0 1,1 84,0 a 42,42 0 1,1 -84,0"
+                    d="M 50,50 m -34,0 a 34,34 0 1,1 68,0 a 34,34 0 1,1 -68,0"
                   />
                 </defs>
-                <text className="text-[8.0px] fill-text-secondary uppercase tracking-[0.08em]">
+                <text className="text-[7.0px] fill-text-secondary uppercase tracking-[0.40em]">
                   <textPath href="#circlePath">
-                    • ОБО МНЕ • ОБО МНЕ • ОБО МНЕ • ОБО МНЕ • ОБО МНЕ
+                    • ОБО МНЕ • ОБО МНЕ • ОБО МНЕ
                   </textPath>
                 </text>
               </svg>
               {/* Центральная иконка */}
-{/* Центральная иконка */}
-<div className="absolute inset-0 flex items-center justify-center">
-  <div className="w-20 h-20 rounded-full border border-border bg-background-card flex items-center justify-center group-hover:border-accent group-hover:bg-accent/10 transition-all overflow-hidden">
-    <img
-      src="/images/ava.png"
-      alt="Avatar"
-      className="w-full h-full object-cover"
-    />
-  </div>
-</div>
+      <div className="absolute inset-0 flex items-center justify-center">
+      <div className="w-16 h-16 rounded-full border border-border bg-background-card flex items-center justify-center group-hover:border-accent group-hover:bg-accent/10 transition-all overflow-hidden">
+        <img
+          src="/images/ava.png"
+          alt="Avatar"
+          className="w-full h-full object-cover"
+        />
+      </div>
+      </div>
             </button>
           </motion.div>
 
           {/* TITLE справа */}
-          <div className="text-left">
+          <div className="text-left pr-10">
             <motion.h1
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.6, delay: 0.2 }}
-              className="text-2xl md:text-4xl font-bold font-montserrat text-text-primary leading-tight"
+              className="text-base font-semibold md:text-2xl font-bold font-montserrat text-text-primary leading-tight"
             >
-              Снимай.
-            </motion.h1>
-            <motion.h1
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.6, delay: 0.3 }}
-              className="text-2xl md:text-4xl font-bold font-montserrat text-text-primary leading-tight"
-            >
-              Монтируй.
+              Снимай | Монтируй
             </motion.h1>
             <motion.h1
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.6, delay: 0.4 }}
-              className="text-4xl md:text-4xl font-bold font-montserrat leading-tight"
+              className="text-3xl font-bold md:text-4xl font-bold font-montserrat leading-tight"
             >
-              <span className="slow-shimmer">Удивляй.</span>
+              <span className="slow-shimmer">Удивляй</span>
             </motion.h1>
           </div>
         </div>
 
         {/* === BEFORE/AFTER SLIDER (уменьшенный) === */}
-        <motion.div
-          initial={{ opacity: 0, scale: 0.95 }}
-          animate={{ opacity: 1, scale: 1 }}
-          transition={{ duration: 0.6, delay: 0.5 }}
-          className="w-full max-w-[280px] mx-auto"
-        >
-          <BeforeAfterSlider
-            beforeImage="/images/do.jpg"
-            afterImage="/images/posle.jpg"
-            beforeLabel="До"
-            afterLabel="После"
-          />
-        </motion.div>
+        <div className="w-full max-w-[380px] mx-auto">
+  <motion.div
+    initial={{ opacity: 0, scale: 0.95 }}
+    animate={{ opacity: 1, scale: 1 }}
+    transition={{ duration: 0.6, delay: 0.5 }}
+    className="h-[320px]"
+  >
+    <BeforeAfterSlider
+      beforeImage="/images/do.jpg"
+      afterImage="/images/posle.jpg"
+      beforeLabel="До"
+      afterLabel="После"
+      className="h-full"
+    />
+  </motion.div>
+</div>
 
         {/* === UTP (новый текст) === */}
         <motion.div
@@ -159,24 +154,8 @@ export default function HeroSection() {
           </Button>
         </motion.div>
 
-        {/* Scroll hint */}
-        <motion.div
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          transition={{ delay: 1.2, duration: 0.5 }}
-          className="mt-auto pt-3 flex justify-center"
-        >
-          <motion.div
-            animate={{ y: [0, 8, 0] }}
-            transition={{ repeat: Infinity, duration: 1.5, ease: 'easeInOut' }}
-            className="flex flex-col items-center gap-1 text-text-muted"
-          >
-            <span className="text-[10px] uppercase tracking-widest">Свайп</span>
-            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 14l-7 7m0 0l-7-7m7 7V3" />
-            </svg>
-          </motion.div>
-        </motion.div>
+          {/* Scroll hint removed */}
+        <div className="mt-auto h-10" />
       </div>
 
       {/* === ABOUT MODAL === */}
