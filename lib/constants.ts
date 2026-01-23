@@ -34,6 +34,7 @@ export const ABOUT_TEACHER = {
   ],
 };
 
+// Старая структура (для совместимости)
 export const PROGRAM_DAYS = [
   {
     day: 1,
@@ -81,6 +82,60 @@ export const PROGRAM_DAYS = [
       'Пресеты и LUT-ы: использование и создание',
       'Экспорт для разных платформ',
       'Финальная практика: полный цикл создания контента',
+    ],
+  },
+];
+
+// Новая структура - 3 недели с сеткой контента
+export type ProgramMediaType = 'image' | 'video';
+
+export type ProgramWeekItem = {
+  id: string;
+  type: ProgramMediaType;
+  src: string;
+};
+
+export type ProgramWeek = {
+  week: number;
+  icon: string;
+  items: ProgramWeekItem[];
+};
+
+export const PROGRAM_WEEKS: ProgramWeek[] = [
+  {
+    week: 1,
+    icon: '/images/icons/week1.png',
+    items: [
+      { id: 'w1-1', type: 'image', src: '/images/program/me.jpg' },
+      { id: 'w1-2', type: 'image', src: '/images/program/mee.jpg' },
+      { id: 'w1-3', type: 'image', src: '/images/program/me.mp4' },
+      { id: 'w1-4', type: 'image', src: '/images/program/mee.jpg' },
+      { id: 'w1-5', type: 'image', src: '/images/program/me.mp4' },
+      { id: 'w1-6', type: 'image', src: '/images/program/me.jpg' },
+    ],
+  },
+  {
+    week: 2,
+    icon: '/images/icons/week2.png',
+    items: [
+      { id: 'w2-1', type: 'image', src: '/images/program/mee.jpg' },
+      { id: 'w2-2', type: 'image', src: '/images/program/me.mp4' },
+      { id: 'w2-3', type: 'image', src: '/images/program/me.jpg' },
+      { id: 'w2-4', type: 'image', src: '/images/program/me.jpg' },
+      { id: 'w2-5', type: 'image', src: '/images/program/mee.jpg' },
+      { id: 'w2-6', type: 'image', src: '/images/program/me.mp4' },
+    ],
+  },
+  {
+    week: 3,
+    icon: '/images/icons/week3.png',
+    items: [
+      { id: 'w3-1', type: 'image', src: '/images/program/me.mp4' },
+      { id: 'w3-2', type: 'image', src: '/images/program/me.jpg' },
+      { id: 'w3-3', type: 'image', src: '/images/program/mee.jpg' },
+      { id: 'w3-4', type: 'image', src: '/images/program/mee.jpg' },
+      { id: 'w3-5', type: 'image', src: '/images/program/me.jpg' },
+      { id: 'w3-6', type: 'image', src: '/images/program/me.mp4' },
     ],
   },
 ];
