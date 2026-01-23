@@ -1,7 +1,7 @@
 'use client';
 
 import { useState } from 'react';
-import { motion } from 'framer-motion';
+import { motion, type Variants } from "framer-motion";
 import Modal from '@/components/ui/Modal';
 import { FAQ_ITEMS } from '@/lib/constants';
 
@@ -21,7 +21,7 @@ export default function FAQSection() {
     },
   };
 
-  const itemVariants = {
+  const itemVariants: Variants = {
     hidden: { opacity: 0, y: 20 },
     show: { opacity: 1, y: 0, transition: { type: 'spring', damping: 20, stiffness: 100 } },
   };
