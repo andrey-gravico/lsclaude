@@ -1,8 +1,9 @@
 'use client';
 
-import { useEffect, useRef, useState } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
+import { useEffect, useRef, useState, type PointerEvent } from 'react';
+import { motion, LayoutGroup } from 'framer-motion';
 import Image from 'next/image';
+import BottomNav from '@/components/layout/BottomNav';
 import Button from '@/components/ui/Button';
 import Modal from '@/components/ui/Modal';
 import { ABOUT_TEACHER, TELEGRAM_LINK, PROGRAM_WEEKS, IMAGES } from '@/lib/constants';
@@ -13,10 +14,20 @@ export default function ProgramSection() {
   const [activeWeek, setActiveWeek] = useState(0);
   const [isAboutOpen, setIsAboutOpen] = useState(false);
   const [selectedMedia, setSelectedMedia] = useState<ProgramWeekItem | null>(null);
+  const [isMediaOpen, setIsMediaOpen] = useState(false);
   const sliderRef = useRef<HTMLDivElement>(null);
   const [sliderWidth, setSliderWidth] = useState(0);
   const modalVideoRef = useRef<HTMLVideoElement>(null);
-  const [isVideoPaused, setIsVideoPaused] = useState(false);
+  const [isMuted, setIsMuted] = useState(false);
+  const [showMuteIndicator, setShowMuteIndicator] = useState(false);
+  const [isVideoEnded, setIsVideoEnded] = useState(false);
+  const muteIndicatorTimeout = useRef<number | null>(null);
+  const holdTimeout = useRef<number | null>(null);
+  const isHolding = useRef(false);
+  const wasPlaying = useRef(false);
+  const closeTimeout = useRef<number | null>(null);
+  const pointerStart = useRef<{ x: number; y: number } | null>(null);
+  const hasMoved = useRef(false);
 
   useEffect(() => {
     const updateWidth = () => {
@@ -31,9 +42,12 @@ export default function ProgramSection() {
 
   useEffect(() => {
     if (selectedMedia?.type === 'video') {
-      setIsVideoPaused(false);
+      setIsVideoEnded(false);
+      setShowMuteIndicator(false);
       const video = modalVideoRef.current;
       if (video) {
+        video.muted = false;
+        setIsMuted(false);
         video.currentTime = 0;
         const playPromise = video.play();
         if (playPromise) {
@@ -51,8 +65,128 @@ export default function ProgramSection() {
     }
   };
 
+  const openMedia = (item: ProgramWeekItem) => {
+    if (closeTimeout.current) {
+      window.clearTimeout(closeTimeout.current);
+      closeTimeout.current = null;
+    }
+    setSelectedMedia(item);
+    setIsMediaOpen(true);
+  };
+
+  const closeMedia = () => {
+    const video = modalVideoRef.current;
+    if (video) {
+      video.pause();
+    }
+    if (closeTimeout.current) {
+      window.clearTimeout(closeTimeout.current);
+      closeTimeout.current = null;
+    }
+    if (muteIndicatorTimeout.current) {
+      window.clearTimeout(muteIndicatorTimeout.current);
+      muteIndicatorTimeout.current = null;
+    }
+    if (holdTimeout.current) {
+      window.clearTimeout(holdTimeout.current);
+      holdTimeout.current = null;
+    }
+    isHolding.current = false;
+    wasPlaying.current = false;
+    hasMoved.current = false;
+    pointerStart.current = null;
+    setShowMuteIndicator(false);
+    setIsVideoEnded(false);
+    setIsMediaOpen(false);
+    closeTimeout.current = window.setTimeout(() => {
+      setSelectedMedia(null);
+    }, 500);
+  };
+
+  const showMuteStatus = (muted: boolean) => {
+    setIsMuted(muted);
+    setShowMuteIndicator(true);
+    if (muteIndicatorTimeout.current) {
+      window.clearTimeout(muteIndicatorTimeout.current);
+    }
+    muteIndicatorTimeout.current = window.setTimeout(() => {
+      setShowMuteIndicator(false);
+    }, 1000);
+  };
+
+  const toggleMute = () => {
+    const video = modalVideoRef.current;
+    if (!video) return;
+    const nextMuted = !video.muted;
+    video.muted = nextMuted;
+    showMuteStatus(nextMuted);
+  };
+
+  const handlePressStart = (event: PointerEvent<HTMLDivElement>) => {
+    const video = modalVideoRef.current;
+    pointerStart.current = { x: event.clientX, y: event.clientY };
+    hasMoved.current = false;
+    if (!video) return;
+    wasPlaying.current = !video.paused;
+    holdTimeout.current = window.setTimeout(() => {
+      isHolding.current = true;
+      if (!video.paused) {
+        video.pause();
+      }
+    }, 280);
+  };
+
+  const handlePressMove = (event: PointerEvent<HTMLDivElement>) => {
+    if (!pointerStart.current) return;
+    if (isHolding.current) return;
+    const deltaX = Math.abs(event.clientX - pointerStart.current.x);
+    const deltaY = Math.abs(event.clientY - pointerStart.current.y);
+    if (deltaY > 14 && deltaY > deltaX) {
+      hasMoved.current = true;
+      if (holdTimeout.current) {
+        window.clearTimeout(holdTimeout.current);
+        holdTimeout.current = null;
+      }
+      closeMedia();
+    }
+  };
+
+  const handlePressEnd = () => {
+    const video = modalVideoRef.current;
+    if (holdTimeout.current) {
+      window.clearTimeout(holdTimeout.current);
+      holdTimeout.current = null;
+    }
+    pointerStart.current = null;
+    if (hasMoved.current) {
+      hasMoved.current = false;
+      isHolding.current = false;
+      return;
+    }
+    if (video && isVideoEnded) {
+      video.currentTime = 0;
+      setIsVideoEnded(false);
+      const playPromise = video.play();
+      if (playPromise) {
+        playPromise.catch(() => {});
+      }
+      return;
+    }
+    if (isHolding.current) {
+      isHolding.current = false;
+      if (video && wasPlaying.current) {
+        const playPromise = video.play();
+        if (playPromise) {
+          playPromise.catch(() => {});
+        }
+      }
+      return;
+    }
+  };
+
   return (
-    <section id="program" className="snap-section section-padding flex flex-col">
+    <LayoutGroup>
+      <section id="program" className="snap-section section-padding flex flex-col">
       {/* === HEADER (копия из HeroSection) === */}
       <header className="pt-2 safe-top">
         <div className="pt-4 pl-3 pr-4 flex items-center justify-between">
@@ -198,9 +332,12 @@ export default function ProgramSection() {
                 {/* Сетка 3x2 */}
                 <div className="grid grid-cols-3 h-full gap-px">
                   {week.items.map((item) => (
-                    <div
+                    <motion.div
                       key={item.id}
-                      onClick={item.src ? () => setSelectedMedia(item) : undefined}
+                      layoutId={`program-item-${item.id}`}
+                      style={selectedMedia?.id === item.id && isMediaOpen ? { zIndex: 60 } : undefined}
+                      transition={{ type: 'spring', stiffness: 160, damping: 22 }}
+                      onClick={item.src ? () => openMedia(item) : undefined}
                       className={`relative aspect-[3/4] bg-background-card overflow-hidden ${item.src ? 'cursor-pointer' : ''}`}
                     >
                       {item.src ? (
@@ -240,7 +377,7 @@ export default function ProgramSection() {
                           <span className="text-[10px]">.png</span>
                         </div>
                       )}
-                    </div>
+                    </motion.div>
                   ))}
                 </div>
               </div>
@@ -300,40 +437,179 @@ export default function ProgramSection() {
 
       {/* === MEDIA MODAL (увеличенный контент) === */}
       <Modal
-        isOpen={!!selectedMedia}
-        onClose={() => setSelectedMedia(null)}
-        showCloseButton
+        isOpen={isMediaOpen}
+        onClose={closeMedia}
+        showCloseButton={false}
         fullScreen
       >
         {selectedMedia && (
-          <div className="relative w-full h-full bg-background flex items-center justify-center">
-            <div className="relative w-[80vw] h-[80vh]">
-              {selectedMedia.type === 'video' ? (
-                <video
-                  ref={modalVideoRef}
-                  src={selectedMedia.src}
-                  className="w-full h-full object-contain"
-                  controls={isVideoPaused}
-                  autoPlay
-                  preload="auto"
-                  playsInline
-                  onPlay={() => setIsVideoPaused(false)}
-                  onPause={() => setIsVideoPaused(true)}
-                  onEnded={() => setIsVideoPaused(true)}
-                />
-              ) : (
-                <Image
-                  src={selectedMedia.src}
-                  alt=""
-                  fill
-                  className="object-contain"
-                  unoptimized
-                />
-              )}
-            </div>
-          </div>
+          <motion.div className="relative w-full h-full">
+            {isMediaOpen && (
+              <div className="absolute inset-x-0 top-0 z-50 flex items-center px-4 pt-[calc(env(safe-area-inset-top,0)+0.5rem)]">
+                <button
+                  onClick={closeMedia}
+                  className="p-2 -ml-2 rounded-full text-white/90 hover:text-white transition-colors bg-black/30 backdrop-blur-sm shadow-[0_4px_12px_rgba(0,0,0,0.35)]"
+                  aria-label="Назад"
+                >
+                  <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
+                  </svg>
+                </button>
+                <button
+                  onClick={toggleMute}
+                  className="ml-auto p-2 rounded-full text-white/90 hover:text-white transition-colors bg-black/30 backdrop-blur-sm shadow-[0_4px_12px_rgba(0,0,0,0.35)]"
+                  aria-label={isMuted ? 'Включить звук' : 'Выключить звук'}
+                >
+                  {isMuted ? (
+                    <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 5L6 9H3v6h3l5 4V5z" />
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 9l4 4m0-4l-4 4" />
+                    </svg>
+                  ) : (
+                    <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 5L6 9H3v6h3l5 4V5z" />
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15.5 8.5a5 5 0 010 7" />
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 5a9 9 0 010 14" />
+                    </svg>
+                  )}
+                </button>
+              </div>
+            )}
+
+            <motion.div
+              className="absolute inset-0 z-10"
+              layoutId={`program-item-${selectedMedia.id}`}
+              transition={{ type: 'spring', stiffness: 160, damping: 22 }}
+              style={{ zIndex: 10 }}
+            >
+              <div className="relative w-full h-full">
+                {selectedMedia.type === 'video' ? (
+                  <>
+                    <video
+                      ref={modalVideoRef}
+                      src={selectedMedia.src}
+                      className="w-full h-full object-cover pointer-events-none select-none"
+                      autoPlay
+                      preload="auto"
+                      playsInline
+                      draggable={false}
+                      onPlay={() => setIsVideoEnded(false)}
+                      onEnded={() => setIsVideoEnded(true)}
+                    />
+                    <div
+                      className="absolute inset-0 z-10 pointer-events-auto select-none"
+                      onPointerDown={(event) => {
+                        event.preventDefault();
+                        handlePressStart(event);
+                      }}
+                      onPointerMove={handlePressMove}
+                      onPointerUp={handlePressEnd}
+                      onPointerLeave={handlePressEnd}
+                      onPointerCancel={handlePressEnd}
+                      onContextMenu={(e) => e.preventDefault()}
+                      style={{
+                        touchAction: 'none',
+                        WebkitUserSelect: 'none',
+                        userSelect: 'none',
+                        WebkitTouchCallout: 'none',
+                      }}
+                    />
+                    <div
+                      className={`absolute inset-0 z-30 flex items-center justify-center pointer-events-none transition-opacity duration-200 ${
+                        showMuteIndicator ? 'opacity-100' : 'opacity-0'
+                      }`}
+                    >
+                      <div className="rounded-full bg-black/60 backdrop-blur-sm p-3 text-white shadow-[0_6px_18px_rgba(0,0,0,0.35)]">
+                        {isMuted ? (
+                          <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path
+                              strokeLinecap="round"
+                              strokeLinejoin="round"
+                              strokeWidth={2}
+                              d="M11 5L6 9H3v6h3l5 4V5z"
+                            />
+                            <path
+                              strokeLinecap="round"
+                              strokeLinejoin="round"
+                              strokeWidth={2}
+                              d="M16 9l4 4m0-4l-4 4"
+                            />
+                          </svg>
+                        ) : (
+                          <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path
+                              strokeLinecap="round"
+                              strokeLinejoin="round"
+                              strokeWidth={2}
+                              d="M11 5L6 9H3v6h3l5 4V5z"
+                            />
+                            <path
+                              strokeLinecap="round"
+                              strokeLinejoin="round"
+                              strokeWidth={2}
+                              d="M15.5 8.5a5 5 0 010 7"
+                            />
+                            <path
+                              strokeLinecap="round"
+                              strokeLinejoin="round"
+                              strokeWidth={2}
+                              d="M19 5a9 9 0 010 14"
+                            />
+                          </svg>
+                        )}
+                      </div>
+                    </div>
+                    {isVideoEnded && (
+                      <div className="absolute inset-0 z-20 flex items-center justify-center bg-black/25 pointer-events-none">
+                        <div className="rounded-full bg-black/60 backdrop-blur-sm p-3 text-white shadow-[0_6px_18px_rgba(0,0,0,0.35)]">
+                          <svg className="w-7 h-7" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v5h5M20 20v-5h-5M5 9a7 7 0 0111.95-4.95L20 7M19 15a7 7 0 01-11.95 4.95L4 17" />
+                          </svg>
+                        </div>
+                      </div>
+                    )}
+                  </>
+                ) : (
+                  <>
+                    <Image
+                      src={selectedMedia.src}
+                      alt=""
+                      fill
+                      className="object-cover pointer-events-none select-none"
+                      unoptimized
+                      draggable={false}
+                    />
+                    <div
+                      className="absolute inset-0 z-10 select-none"
+                      onPointerDown={(event) => {
+                        event.preventDefault();
+                        handlePressStart(event);
+                      }}
+                      onPointerMove={handlePressMove}
+                      onPointerUp={handlePressEnd}
+                      onPointerLeave={handlePressEnd}
+                      onPointerCancel={handlePressEnd}
+                      style={{
+                        touchAction: 'none',
+                        WebkitUserSelect: 'none',
+                        userSelect: 'none',
+                        WebkitTouchCallout: 'none',
+                      }}
+                    />
+                  </>
+                )}
+              </div>
+            </motion.div>
+
+            {isMediaOpen && (
+              <div className="absolute inset-x-0 bottom-0 z-50">
+                <BottomNav />
+              </div>
+            )}
+          </motion.div>
         )}
       </Modal>
-    </section>
+      </section>
+    </LayoutGroup>
   );
 }

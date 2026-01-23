@@ -23,6 +23,7 @@ export default function Modal({
   showCloseButton = true,
   fullScreen = false,
 }: ModalProps) {
+  const showHeader = Boolean(title) || showCloseButton;
   const handleEscape = useCallback(
     (e: KeyboardEvent) => {
       if (e.key === 'Escape') onClose();
@@ -44,40 +45,48 @@ export default function Modal({
   return (
     <AnimatePresence>
       {isOpen && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-6">
+        <div
+          className={cn(
+            'fixed inset-0 z-50 flex justify-center',
+            fullScreen ? 'items-stretch p-0' : 'items-center p-6'
+          )}
+        >
           {/* Backdrop - видимый, кликабельный для закрытия */}
           <motion.div
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
             transition={{ duration: 0.2 }}
-            className="absolute inset-0 bg-black/60 backdrop-blur-sm"
-            onClick={onClose}
+            className={cn(
+              'absolute inset-0',
+              fullScreen ? 'bg-transparent' : 'bg-black/60 backdrop-blur-sm'
+            )}
+            onClick={fullScreen ? undefined : onClose}
           />
 
           {/* Modal content - уменьшенный размер */}
           <motion.div
-            initial={{ opacity: 0, y: 50, scale: 0.95 }}
+            initial={fullScreen ? false : { opacity: 0, y: 50, scale: 0.95 }}
             animate={{ opacity: 1, y: 0, scale: 1 }}
-            exit={{ opacity: 0, y: 50, scale: 0.95 }}
-            transition={{ type: 'spring', damping: 25, stiffness: 300 }}
+            exit={fullScreen ? { opacity: 1, y: 0, scale: 1 } : { opacity: 0, y: 50, scale: 0.95 }}
+            transition={fullScreen ? { duration: 0 } : { type: 'spring', damping: 25, stiffness: 300 }}
             className={cn(
-              'relative z-10 bg-background-card border border-border rounded-2xl shadow-2xl',
+              'relative z-10 overflow-hidden',
               fullScreen
-                ? 'w-[90vw] max-w-none h-[80vh] max-h-[80vh]'
-                : 'w-full max-w-sm max-h-[70vh]',
-              'overflow-hidden',
+                ? 'w-screen h-screen max-w-none max-h-none rounded-none border-0 bg-transparent'
+                : 'w-full max-w-sm max-h-[70vh] rounded-2xl border border-border bg-background-card shadow-2xl',
               className
             )}
           >
             {/* Header with title and close button */}
-            <div className="flex items-center justify-between p-4 border-b border-border">
-              {title ? (
+            {showHeader && (
+              <div className="flex items-center justify-between p-4 border-b border-border">
+                {title ? (
                 <h2 className="text-lg font-semibold text-text-primary">{title}</h2>
               ) : (
                 <div />
               )}
-              {showCloseButton && (
+                {showCloseButton && (
                 <button
                   onClick={onClose}
                   className="p-2 -mr-2 rounded-full hover:bg-background-elevated transition-colors"
@@ -88,13 +97,17 @@ export default function Modal({
                   </svg>
                 </button>
               )}
-            </div>
+              </div>
+            )}
 
             {/* Content */}
             <div
               className={cn(
-                'overflow-y-auto',
-                fullScreen ? 'max-h-[calc(80vh-4rem)]' : 'max-h-[calc(70vh-4rem)]'
+                fullScreen
+                  ? showHeader
+                    ? 'overflow-y-auto max-h-[calc(100vh-4rem)]'
+                    : 'h-full'
+                  : 'overflow-y-auto max-h-[calc(70vh-4rem)]'
               )}
             >
               {children}

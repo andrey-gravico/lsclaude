@@ -82,7 +82,7 @@ export const viewport: Viewport = {
   maximumScale: 1,
   userScalable: false,
   viewportFit: 'cover',
-  themeColor: '#ffffff',
+  themeColor: '#0a0a0a',
 };
 
 // Яндекс.Метрика ID (замените на свой)
