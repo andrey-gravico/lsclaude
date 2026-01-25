@@ -308,3 +308,36 @@ export const NAV_ITEMS = [
   { id: 'reviews', label: 'Отзывы', icon: 'star' },
   { id: 'faq', label: 'FAQ', icon: 'help' },
 ];
+
+// Tinder-style Swipe Quiz
+export const SWIPE_QUIZ_CARDS = [
+  { id: 1, question: 'Хочу снимать крутые Reels?', image: '/images/test/1qst.webp' },
+  { id: 2, question: 'Снимаю контент каждый день?', image: '/images/test/2qst.webp' },
+  { id: 3, question: 'Хочу зарабатывать на съёмке?', image: '/images/test/3qst.webp' },
+  { id: 4, question: 'Свет — моя главная проблема?', image: '/images/test/4qst.webp' },
+  { id: 5, question: 'Готов(а) учиться прямо сейчас?', image: '/images/test/5qst.webp' },
+];
+
+export const SWIPE_QUIZ_RESULTS = {
+  low: {
+    minYes: 0,
+    maxYes: 1,
+    title: 'Пока подумай...',
+    description: 'Возможно, тебе стоит сначала определиться с целями.',
+    discount: null,
+  },
+  medium: {
+    minYes: 2,
+    maxYes: 3,
+    title: 'Курс тебе подойдёт!',
+    description: 'У тебя есть потенциал. Курс поможет раскрыть его.',
+    discount: '1000₽',
+  },
+  high: {
+    minYes: 4,
+    maxYes: 5,
+    title: 'Ты идеальный кандидат!',
+    description: 'Ты точно знаешь чего хочешь. Давай начнём!',
+    discount: '1500₽',
+  },
+};

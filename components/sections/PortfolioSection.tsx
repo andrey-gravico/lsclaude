@@ -39,7 +39,7 @@ export default function PortfolioSection() {
   // Stagger с чередующимися направлениями
   const cardVariants = {
     hidden: (i: number) => ({ opacity: 0, x: i % 2 === 0 ? -30 : 30 }),
-    show: { opacity: 1, x: 0, transition: { type: 'spring', damping: 20, stiffness: 100 } },
+    show: { opacity: 1, x: 0, transition: { type: 'spring' as const, damping: 20, stiffness: 100 } },
   };
 
   return (

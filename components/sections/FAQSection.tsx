@@ -23,7 +23,7 @@ export default function FAQSection() {
 
   const itemVariants: Variants = {
     hidden: { opacity: 0, y: 20 },
-    show: { opacity: 1, y: 0, transition: { type: 'spring', damping: 20, stiffness: 100 } },
+    show: { opacity: 1, y: 0, transition: { type: 'spring' as const, damping: 20, stiffness: 100 } },
   };
 
   return (
