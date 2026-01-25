@@ -15,9 +15,11 @@ interface SwipeCardProps {
   isTop: boolean;
   stackIndex: number;
   isFirst: boolean;
+  currentCardNumber: number;
+  totalCards: number;
 }
 
-function SwipeCard({ card, onSwipe, isTop, stackIndex, isFirst }: SwipeCardProps) {
+function SwipeCard({ card, onSwipe, isTop, stackIndex, isFirst, currentCardNumber, totalCards }: SwipeCardProps) {
   const x = useMotionValue(0);
   const rotate = useTransform(x, [-200, 200], [-15, 15]);
   const yesOpacity = useTransform(x, [0, 100], [0, 1]);
@@ -83,6 +85,13 @@ function SwipeCard({ card, onSwipe, isTop, stackIndex, isFirst }: SwipeCardProps
         {card.question}
       </p>
 
+      {/* Counter (only on top card) */}
+      {isTop && (
+        <div className="absolute top-4 -right-6 -translate-x-1/2 text-white/90 text-sm font-medium bg-black/40 backdrop-blur-sm px-2 py-1 rounded-full">
+          {currentCardNumber}/{totalCards}
+        </div>
+      )}
+
       {/* YES indicator */}
       <motion.div
         style={{ opacity: yesOpacity }}
@@ -104,15 +113,15 @@ function SwipeCard({ card, onSwipe, isTop, stackIndex, isFirst }: SwipeCardProps
         <>
           <button
             onClick={(e) => { e.stopPropagation(); onSwipe('left'); }}
-            className="absolute left-3 top-1/2 -translate-y-1/2 w-11 h-11 rounded-full border-2 border-white/40 flex items-center justify-center text-white bg-black/30 backdrop-blur-sm hover:bg-red-500/40 hover:border-red-400 transition-colors"
+            className="absolute left-3 top-1/2 -translate-y-1/2 w-11 h-11 rounded-full border-2 border-white/40 flex items-center justify-center text-white bg-black/30 backdrop-blur-xs hover:bg-red-500/40 hover:border-red-400 transition-colors"
           >
-            <span className="text-lg">✕</span>
+            <span className="text-2xl">✕</span>
           </button>
           <button
             onClick={(e) => { e.stopPropagation(); onSwipe('right'); }}
-            className="absolute right-3 top-1/2 -translate-y-1/2 w-11 h-11 rounded-full border-2 border-white/40 flex items-center justify-center text-white bg-black/30 backdrop-blur-sm hover:bg-green-500/40 hover:border-green-400 transition-colors"
+            className="absolute right-3 top-1/2 -translate-y-1/2 w-11 h-11 rounded-full border-2 border-white/40 flex items-center justify-center text-white bg-black/30 backdrop-blur-xs hover:bg-green-500/40 hover:border-green-400 transition-colors"
           >
-            <span className="text-lg">♥</span>
+            <span className="text-2xl">♥</span>
           </button>
         </>
       )}
@@ -345,7 +354,7 @@ export default function QuizSection() {
         <div className="border-t border-border w-screen -mx-4" />
 
         {/* === Quiz Area === */}
-        <div className="flex-1 flex flex-col relative">
+        <div className="flex-1 flex flex-col relative pt-4">
           {!quizStarted ? (
             /* Начальный экран */
             <div className="flex-1 flex flex-col items-center mt-20 px-4">
@@ -380,11 +389,6 @@ export default function QuizSection() {
             /* Quiz Cards */
             <div className="flex-1 flex flex-col overflow-hidden">
               {/* Счётчик вверху справа */}
-              <div className="flex justify-end flex-shrink-0">
-                <div className="text-text-secondary text-sm font-medium bg-black/40 backdrop-blur-sm px-2 py-1 rounded-full">
-                  {currentCardNumber}/{totalCards}
-                </div>
-              </div>
               {/* Card Stack - фиксированная высота */}
               <div className="relative w-full max-w-[440px] mx-auto flex-none quiz-card-stack">
                 <AnimatePresence mode="popLayout">
@@ -396,6 +400,8 @@ export default function QuizSection() {
                       isTop={index === 0 && exitingCard !== card.id}
                       stackIndex={index}
                       isFirst={currentCardNumber === 1 && index === 0}
+                      currentCardNumber={currentCardNumber}
+                      totalCards={totalCards}
                     />
                   ))}
                 </AnimatePresence>
