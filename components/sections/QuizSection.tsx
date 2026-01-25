@@ -172,7 +172,7 @@ function ResultCard({ yesCount, onRestart }: ResultCardProps) {
       initial={{ scale: 0.8, opacity: 0 }}
       animate={{ scale: 1, opacity: 1 }}
       transition={{ type: 'spring' as const, stiffness: 200, damping: 20 }}
-      className="flex-1 m-3 bg-background-card rounded-2xl p-4 border border-border shadow-xl flex flex-col items-center justify-center text-center"
+      className="w-full h-full bg-background-card rounded-2xl p-4 border border-border shadow-xl flex flex-col items-center justify-start text-center pt-10"
     >
       {result.discount ? (
         <>
@@ -409,7 +409,11 @@ export default function QuizSection() {
             </div>
           ) : (
             /* Result */
-            <ResultCard yesCount={yesCount} onRestart={handleRestart} />
+            <div className="flex-1 flex flex-col overflow-hidden">
+              <div className="relative w-full max-w-[440px] mx-auto flex-none quiz-card-stack p-3">
+                <ResultCard yesCount={yesCount} onRestart={handleRestart} />
+              </div>
+            </div>
           )}
         </div>
       </div>
