@@ -396,3 +396,26 @@ html, body {
   width: 75%;
   max-width: 280px;
 }
+
+/* === QUIZ CARD STACK HEIGHT === */
+.quiz-card-stack {
+  height: min(44vh, 380px);
+  height: min(56dvh, 480px);
+  min-height: 260px;
+}
+
+@media (min-width: 640px) {
+  .quiz-card-stack {
+    height: min(48vh, 420px);
+    height: min(48dvh, 420px);
+    min-height: 300px;
+  }
+}
+
+@media (min-width: 768px) {
+  .quiz-card-stack {
+    height: min(56vh, 560px);
+    height: min(56dvh, 560px);
+    min-height: 360px;
+  }
+}

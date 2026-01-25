@@ -64,14 +64,14 @@ function SwipeCard({ card, onSwipe, isTop, stackIndex, isFirst }: SwipeCardProps
         opacity: 0,
         transition: { duration: 0.3, ease: 'easeOut' }
       }}
-      className="absolute inset-0 rounded-2xl overflow-hidden shadow-2xl cursor-grab active:cursor-grabbing"
+      className="absolute inset-0 rounded-2xl overflow-hidden shadow-2xl cursor-grab active:cursor-grabbing bg-black"
       whileDrag={{ cursor: 'grabbing' }}
     >
       {/* Фоновая картинка */}
       <img
         src={card.image}
         alt=""
-        className="w-full h-full object-cover select-none pointer-events-none"
+        className="absolute inset-0 w-full h-full object-cover select-none pointer-events-none"
         draggable={false}
       />
 
@@ -380,13 +380,13 @@ export default function QuizSection() {
             /* Quiz Cards */
             <div className="flex-1 flex flex-col overflow-hidden">
               {/* Счётчик вверху справа */}
-              <div className="flex justify-end mb- flex-shrink-0">
+              <div className="flex justify-end flex-shrink-0">
                 <div className="text-text-secondary text-sm font-medium bg-black/40 backdrop-blur-sm px-2 py-1 rounded-full">
                   {currentCardNumber}/{totalCards}
                 </div>
               </div>
               {/* Card Stack - фиксированная высота */}
-              <div className="relative flex-1 min-h-0 max-h-[calc(100%-40px)]">
+              <div className="relative w-full max-w-[440px] mx-auto flex-none quiz-card-stack">
                 <AnimatePresence mode="popLayout">
                   {cards.slice(0, 3).map((card, index) => (
                     <SwipeCard
