@@ -224,7 +224,7 @@ export default function ReviewsSection() {
     <section id="reviews" className="snap-section section-padding flex flex-col">
       <div className="max-w-lg mx-auto w-full pt-6 pb-24 flex flex-col flex-1">
         <div className="text-center text-sm font-semibold text-text-primary font-montserrat">
-          Снимай. Монтируй. <span className="slow-shimmer font-bold">Удивляй.</span>
+          Снимай | Монтируй | <span className="slow-shimmer font-bold">Удивляй</span>
         </div>
 
         <div className="relative mt-5 flex items-center justify-center">

@@ -10,13 +10,13 @@ import {
 export const TELEGRAM_LINK = 'https://t.me/littlesveta';
 export const INSTAGRAM_LINK = 'https://instagram.com/littlesveta';
 
-// Images - use placeholders for now, replace with real images later
+// ПЛЕЙСХОЛДЕРЫ
 export const IMAGES = {
   avatar: PLACEHOLDER_AVATAR,
   before: PLACEHOLDER_BEFORE,
   after: PLACEHOLDER_AFTER,
 };
-
+//ОБО МНЕ
 export const ABOUT_TEACHER = {
   name: 'Света',
   role: 'Мобилограф и контент-мейкер',
@@ -102,6 +102,7 @@ export type ProgramWeek = {
   items: ProgramWeekItem[];
 };
 
+// ПРОГРАММА КУРСА
 export const PROGRAM_WEEKS: ProgramWeek[] = [
   {
     week: 1,
@@ -275,38 +276,39 @@ const makeHighlight = (id: string, label: string, coverSrc: string): PortfolioHi
   items: PORTFOLIO_SAMPLE_ITEMS,
 });
 
+// ПОРТФОЛИО
 export const PORTFOLIO_CATEGORIES: PortfolioCategory[] = [
   {
     id: 'weddings',
     title: 'Свадьбы',
     highlights: [
-      makeHighlight('w-1', 'Winter 25', '/images/portfolio/cover-1.jpg'),
-      makeHighlight('w-2', 'Съёмки 4.0', '/images/portfolio/cover-2.jpg'),
-      makeHighlight('w-3', 'S', '/images/portfolio/cover-3.jpg'),
-      makeHighlight('w-4', '🐈 свадьбы', '/images/portfolio/cover-4.jpg'),
-      makeHighlight('w-5', 'Бьюти ✨', '/images/portfolio/cover-5.jpg'),
+      makeHighlight('w-1', '25.08.25', '/images/portfolio/cover-1.jpg'),
+      makeHighlight('w-2', '31.09.25', '/images/portfolio/cover-2.jpg'),
+      makeHighlight('w-3', '17.06.24', '/images/portfolio/cover-3.jpg'),
+      makeHighlight('w-4', '05.05.23', '/images/portfolio/cover-4.jpg'),
+      makeHighlight('w-5', '21.03.23', '/images/portfolio/cover-5.jpg'),
     ],
   },
   {
     id: 'studio',
     title: 'Студийные съёмки',
     highlights: [
-      makeHighlight('s-1', 'Winter 25', '/images/portfolio/cover-1.jpg'),
-      makeHighlight('s-2', 'Съёмки 4.0', '/images/portfolio/cover-2.jpg'),
-      makeHighlight('s-3', 'S', '/images/portfolio/cover-3.jpg'),
-      makeHighlight('s-4', '🐈 свадьбы', '/images/portfolio/cover-4.jpg'),
-      makeHighlight('s-5', 'Бьюти ✨', '/images/portfolio/cover-5.jpg'),
+      makeHighlight('s-1', 'Furs Queen', '/images/portfolio/cover-1.jpg'),
+      makeHighlight('s-2', 'Aura Wear', '/images/portfolio/cover-2.jpg'),
+      makeHighlight('s-3', 'Nana showroom', '/images/portfolio/cover-3.jpg'),
+      makeHighlight('s-4', 'Sloy', '/images/portfolio/cover-4.jpg'),
+      makeHighlight('s-5', 'Humanation', '/images/portfolio/cover-5.jpg'),
     ],
   },
   {
     id: 'outdoor',
     title: 'Outdoor съёмки',
     highlights: [
-      makeHighlight('o-1', 'Winter 25', '/images/portfolio/cover-1.jpg'),
-      makeHighlight('o-2', 'Съёмки 4.0', '/images/portfolio/cover-2.jpg'),
-      makeHighlight('o-3', 'S', '/images/portfolio/cover-3.jpg'),
-      makeHighlight('o-4', '🐈 свадьбы', '/images/portfolio/cover-4.jpg'),
-      makeHighlight('o-5', 'Бьюти ✨', '/images/portfolio/cover-5.jpg'),
+      makeHighlight('o-1', 'Glame Jewelery', '/images/portfolio/cover-1.jpg'),
+      makeHighlight('o-2', 'Luxary Clothing', '/images/portfolio/cover-2.jpg'),
+      makeHighlight('o-3', 'Pallasa', '/images/portfolio/cover-3.jpg'),
+      makeHighlight('o-4', 'Save SMM', '/images/portfolio/cover-4.jpg'),
+      makeHighlight('o-5', 'Maslow Group', '/images/portfolio/cover-5.jpg'),
     ],
   },
 ];
@@ -375,20 +377,20 @@ export type VideoReviewItem = {
   posterSrc?: string;
   isNew: boolean;
 };
-
+// ОТЗЫВЫ ГОЛОС
 export const VOICE_REVIEW_ITEMS: VoiceReviewItem[] = [
-  { id: 'v1', username: 'anifeibraigimova', avatarSrc: '/images/reviews/ava-1.jpg', audioSrc: SILENT_AUDIO, duration: 4, isNew: true },
-  { id: 'v2', username: 'shishmarew', avatarSrc: '/images/reviews/ava-2.jpg', audioSrc: SILENT_AUDIO, duration: 12, isNew: false },
-  { id: 'v3', username: 'marketurgia', avatarSrc: '/images/reviews/ava-3.jpg', audioSrc: SILENT_AUDIO, duration: 9, isNew: false },
-  { id: 'v4', username: '_m.sakine_', avatarSrc: '/images/reviews/ava-4.jpg', audioSrc: SILENT_AUDIO, duration: 16, isNew: false },
-  { id: 'v5', username: 'mann_igor', avatarSrc: '/images/reviews/ava-5.jpg', audioSrc: SILENT_AUDIO, duration: 22, isNew: false },
-  { id: 'v6', username: 'musaev.as_', avatarSrc: '/images/reviews/ava-6.jpg', audioSrc: SILENT_AUDIO, duration: 18, isNew: false },
+  { id: 'v1', username: 'Olesya.Ivanchenko', avatarSrc: '/images/reviews/ava-1.jpg', audioSrc: SILENT_AUDIO, duration: 4, isNew: true },
+  { id: 'v2', username: 'shish_rekava', avatarSrc: '/images/reviews/ava-2.jpg', audioSrc: SILENT_AUDIO, duration: 12, isNew: false },
+  { id: 'v3', username: 'diana_gros6', avatarSrc: '/images/reviews/ava-3.jpg', audioSrc: SILENT_AUDIO, duration: 9, isNew: false },
+  { id: 'v4', username: 'lebedeva.anna', avatarSrc: '/images/reviews/ava-4.jpg', audioSrc: SILENT_AUDIO, duration: 16, isNew: false },
+  { id: 'v5', username: 'kurzdaq', avatarSrc: '/images/reviews/ava-5.jpg', audioSrc: SILENT_AUDIO, duration: 22, isNew: false },
+  { id: 'v6', username: 'Andrey_andrey', avatarSrc: '/images/reviews/ava-6.jpg', audioSrc: SILENT_AUDIO, duration: 18, isNew: false },
 ];
-
+// ОТЗЫВЫ ТЕКСТ
 export const TEXT_REVIEW_ITEMS: TextReviewItem[] = [
   {
     id: 't1',
-    username: 'anifeibraigimova',
+    username: 'Rihana_artemova',
     avatarSrc: '/images/reviews/ava-1.jpg',
     preview: 'Света, это лучший курс, который я проходила — всё по делу!',
     text: 'Света, это лучший курс, который я проходила — всё по делу! Уже на второй день я сняла ролик, который реально выглядит как «до/после». Спасибо за структуру, практику и поддержку.',
@@ -396,7 +398,7 @@ export const TEXT_REVIEW_ITEMS: TextReviewItem[] = [
   },
   {
     id: 't2',
-    username: 'marketurgia',
+    username: 'Quinn_castle',
     avatarSrc: '/images/reviews/ava-3.jpg',
     preview: 'Я наконец-то понял свет и кадр. Результат — огонь.',
     text: 'Я наконец-то понял свет и кадр. Результат — огонь. Больше всего зашли задания и разборы: сразу видишь, что исправить и куда расти. Рекомендую всем, кто снимает на телефон.',
@@ -404,18 +406,18 @@ export const TEXT_REVIEW_ITEMS: TextReviewItem[] = [
   },
   {
     id: 't3',
-    username: 'musaev.as_',
+    username: 'Musaeva.Anji',
     avatarSrc: '/images/reviews/ava-6.jpg',
     preview: 'С монтажом стало сильно проще — появились приёмы и ритм.',
     text: 'С монтажом стало сильно проще — появились приёмы и ритм. Теперь понимаю, как держать внимание и делать переходы уместно. Отдельный кайф — что всё можно повторить сразу.',
     isNew: false,
   },
 ];
-
+// ОТЗЫВЫ ВИДЕО
 export const VIDEO_REVIEW_ITEMS: VideoReviewItem[] = [
   {
     id: 'vv1',
-    username: 'mann_igor',
+    username: 'Anna.Pavlova',
     avatarSrc: '/images/reviews/ava-5.jpg',
     videoSrc: '/images/reviews/video-1.mp4',
     posterSrc: '/images/reviews/video-1-poster.jpg',
@@ -423,14 +425,14 @@ export const VIDEO_REVIEW_ITEMS: VideoReviewItem[] = [
   },
   {
     id: 'vv2',
-    username: '_m.sakine_',
+    username: 'Inga.Inga',
     avatarSrc: '/images/reviews/ava-4.jpg',
     videoSrc: '/images/reviews/video-2.mp4',
     posterSrc: '/images/reviews/video-2-poster.jpg',
     isNew: false,
   },
 ];
-
+// FAQ
 export const FAQ_ITEMS = [
   {
     question: 'Нужен ли мне профессиональный телефон?',
@@ -457,17 +459,17 @@ export const FAQ_ITEMS = [
     answer: '4 дня интенсивного обучения, все материалы курса, пресеты для обработки, доступ в закрытый чат выпускников и поддержка после курса.',
   },
 ];
-
+// НАВИГАЦИЯ
 export const NAV_ITEMS = [
   { id: 'hero', label: 'Главная', icon: 'home' },
-  { id: 'program', label: 'Курс', icon: 'book' },
+  { id: 'program', label: 'Программа', icon: 'book' },
   { id: 'quiz', label: 'Тест', icon: 'clipboard' },
   { id: 'portfolio', label: 'Портфолио', icon: 'camera' },
   { id: 'reviews', label: 'Отзывы', icon: 'star' },
   { id: 'faq', label: 'FAQ', icon: 'help' },
 ];
 
-// Tinder-style Swipe Quiz
+// ТИНДЕР-СТИЛЬ ТЕСТ
 export const SWIPE_QUIZ_CARDS = [
   { id: 1, question: 'Хочу снимать крутые Reels?', image: '/images/test/1qst.webp' },
   { id: 2, question: 'Снимаю контент каждый день?', image: '/images/test/2qst.webp' },

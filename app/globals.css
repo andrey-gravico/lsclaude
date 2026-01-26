@@ -11,13 +11,13 @@
   --color-text-secondary: #a0a0a0;
   --color-text-muted: #666666;
 
-  /* Персиковый/Nude акцент - более насыщенный */
+  /* Персиковый/Nude акцент*/
   --color-accent: #F5C4B4;
   --color-accent-hover: #fad4c6;
   --color-accent-light: rgba(245, 196, 180, 0.15);
   --color-accent-glow: rgba(245, 196, 180, 0.4);
 
-  --color-border: #2a2a2a;
+  --color-border: #1c1c1c;
   --color-border-light: #1f1f1f;
 
   /* Градиенты для текста */
