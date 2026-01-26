@@ -24,8 +24,16 @@ export default function HeroSection() {
         transition={{ duration: 0.5 }}
         className="pt-2 safe-top"
       >
-        <div className="pt-4 pl-3 pr-4 flex items-center justify-between">
-          {/* Left - стрелка + @username */}
+        <div className="pt-4 flex items-center justify-between pr-5">
+          {/* Right - точка + текст */}
+          <div className="flex items-center gap-1.5">
+            <span className="w-1.5 h-1.5 rounded-full bg-accent" />
+            <span className="text-[8px] md:text-[9px] font-medium text-text-primary uppercase tracking-wider">
+              Курс по мобильной съёмке
+            </span>
+          </div>
+
+                    {/* Left - стрелка + @username */}
           <a
             href={TELEGRAM_LINK}
             target="_blank"
@@ -35,14 +43,6 @@ export default function HeroSection() {
             <span className="text-xs">‹</span>
             @LITTLESVETA
           </a>
-
-          {/* Right - точка + текст */}
-          <div className="flex items-center gap-1.5">
-            <span className="w-1.5 h-1.5 rounded-full bg-accent" />
-            <span className="text-[8px] md:text-[9px] font-medium text-text-primary uppercase tracking-wider">
-              Курс по мобильной съёмке
-            </span>
-          </div>
         </div>
       </motion.header>
 
@@ -50,6 +50,26 @@ export default function HeroSection() {
       <div className="flex-1 flex flex-col justify-center py-2">
         {/* === Иконка "обо мне" + TITLE в одном контейнере === */}
         <div className="flex items-center justify-between mb-4">
+          {/* TITLE справа */}
+          <div className="text-left">
+            <motion.h1
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.6, delay: 0.2 }}
+              className="text-[22px] font-semibold md:text-2xl font-bold font-montserrat text-text-primary leading-tight"
+            >
+              Снимай | Монтируй
+            </motion.h1>
+            <motion.h1
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.6, delay: 0.4 }}
+              className="text-4xl font-bold md:text-4xl font-bold font-montserrat leading-tight"
+            >
+              <span className="slow-shimmer"> Удивляй</span>
+            </motion.h1>
+          </div>
+          
           {/* Иконка "обо мне" слева */}
           <motion.div
             initial={{ opacity: 0, scale: 0.8 }}
@@ -79,37 +99,15 @@ export default function HeroSection() {
                 </text>
               </svg>
               {/* Центральная иконка */}
-      <div className="absolute inset-0 flex items-center justify-center">
-      <div className="w-16 h-16 rounded-full border border-border bg-background-card flex items-center justify-center group-hover:border-accent group-hover:bg-accent/10 transition-all overflow-hidden">
-        <img
-          src="/images/ava.png"
-          alt="Avatar"
-          className="w-full h-full object-cover"
-        />
-      </div>
-      </div>
+              <div className="absolute inset-0 flex items-center justify-center">
+                <div className="w-16 h-16 rounded-full border border-border bg-background-card flex items-center justify-center group-hover:border-accent group-hover:bg-accent/10 transition-all overflow-hidden">
+                <img src="/images/ava.png" alt="Avatar" className="w-full h-full object-cover"/>
+                </div>
+              </div>
             </button>
           </motion.div>
 
-          {/* TITLE справа */}
-          <div className="text-left pr-10">
-            <motion.h1
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.6, delay: 0.2 }}
-              className="text-base font-semibold md:text-2xl font-bold font-montserrat text-text-primary leading-tight"
-            >
-              Снимай | Монтируй
-            </motion.h1>
-            <motion.h1
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.6, delay: 0.4 }}
-              className="text-3xl font-bold md:text-4xl font-bold font-montserrat leading-tight"
-            >
-              <span className="slow-shimmer">Удивляй</span>
-            </motion.h1>
-          </div>
+
         </div>
 
         {/* === BEFORE/AFTER SLIDER (уменьшенный) === */}
