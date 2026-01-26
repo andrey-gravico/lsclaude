@@ -347,6 +347,90 @@ export const TEXT_REVIEWS = [
   },
 ];
 
+export type ReviewsFilter = 'voice' | 'text' | 'video';
+
+export type VoiceReviewItem = {
+  id: string;
+  username: string;
+  avatarSrc: string;
+  audioSrc: string;
+  duration: number;
+  isNew: boolean;
+};
+
+export type TextReviewItem = {
+  id: string;
+  username: string;
+  avatarSrc: string;
+  preview: string;
+  text: string;
+  isNew: boolean;
+};
+
+export type VideoReviewItem = {
+  id: string;
+  username: string;
+  avatarSrc: string;
+  videoSrc: string;
+  posterSrc?: string;
+  isNew: boolean;
+};
+
+export const VOICE_REVIEW_ITEMS: VoiceReviewItem[] = [
+  { id: 'v1', username: 'anifeibraigimova', avatarSrc: '/images/reviews/ava-1.jpg', audioSrc: SILENT_AUDIO, duration: 4, isNew: true },
+  { id: 'v2', username: 'shishmarew', avatarSrc: '/images/reviews/ava-2.jpg', audioSrc: SILENT_AUDIO, duration: 12, isNew: false },
+  { id: 'v3', username: 'marketurgia', avatarSrc: '/images/reviews/ava-3.jpg', audioSrc: SILENT_AUDIO, duration: 9, isNew: false },
+  { id: 'v4', username: '_m.sakine_', avatarSrc: '/images/reviews/ava-4.jpg', audioSrc: SILENT_AUDIO, duration: 16, isNew: false },
+  { id: 'v5', username: 'mann_igor', avatarSrc: '/images/reviews/ava-5.jpg', audioSrc: SILENT_AUDIO, duration: 22, isNew: false },
+  { id: 'v6', username: 'musaev.as_', avatarSrc: '/images/reviews/ava-6.jpg', audioSrc: SILENT_AUDIO, duration: 18, isNew: false },
+];
+
+export const TEXT_REVIEW_ITEMS: TextReviewItem[] = [
+  {
+    id: 't1',
+    username: 'anifeibraigimova',
+    avatarSrc: '/images/reviews/ava-1.jpg',
+    preview: 'Света, это лучший курс, который я проходила — всё по делу!',
+    text: 'Света, это лучший курс, который я проходила — всё по делу! Уже на второй день я сняла ролик, который реально выглядит как «до/после». Спасибо за структуру, практику и поддержку.',
+    isNew: true,
+  },
+  {
+    id: 't2',
+    username: 'marketurgia',
+    avatarSrc: '/images/reviews/ava-3.jpg',
+    preview: 'Я наконец-то понял свет и кадр. Результат — огонь.',
+    text: 'Я наконец-то понял свет и кадр. Результат — огонь. Больше всего зашли задания и разборы: сразу видишь, что исправить и куда расти. Рекомендую всем, кто снимает на телефон.',
+    isNew: false,
+  },
+  {
+    id: 't3',
+    username: 'musaev.as_',
+    avatarSrc: '/images/reviews/ava-6.jpg',
+    preview: 'С монтажом стало сильно проще — появились приёмы и ритм.',
+    text: 'С монтажом стало сильно проще — появились приёмы и ритм. Теперь понимаю, как держать внимание и делать переходы уместно. Отдельный кайф — что всё можно повторить сразу.',
+    isNew: false,
+  },
+];
+
+export const VIDEO_REVIEW_ITEMS: VideoReviewItem[] = [
+  {
+    id: 'vv1',
+    username: 'mann_igor',
+    avatarSrc: '/images/reviews/ava-5.jpg',
+    videoSrc: '/images/reviews/video-1.mp4',
+    posterSrc: '/images/reviews/video-1-poster.jpg',
+    isNew: false,
+  },
+  {
+    id: 'vv2',
+    username: '_m.sakine_',
+    avatarSrc: '/images/reviews/ava-4.jpg',
+    videoSrc: '/images/reviews/video-2.mp4',
+    posterSrc: '/images/reviews/video-2-poster.jpg',
+    isNew: false,
+  },
+];
+
 export const FAQ_ITEMS = [
   {
     question: 'Нужен ли мне профессиональный телефон?',
