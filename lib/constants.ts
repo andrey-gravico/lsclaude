@@ -237,6 +237,80 @@ export const PORTFOLIO_ITEMS = [
   },
 ];
 
+export type PortfolioHighlightItem = {
+  id: string;
+  type: 'image' | 'video';
+  src: string;
+  posterSrc?: string;
+};
+
+export type PortfolioHighlight = {
+  id: string;
+  label: string;
+  coverSrc: string;
+  items: PortfolioHighlightItem[];
+};
+
+export type PortfolioCategory = {
+  id: string;
+  title: string;
+  highlights: PortfolioHighlight[];
+};
+
+const PORTFOLIO_SAMPLE_ITEMS: PortfolioHighlightItem[] = [
+  { id: 's1', type: 'image', src: '/images/portfolio/story-1.jpg' },
+  { id: 's2', type: 'image', src: '/images/portfolio/story-2.jpg' },
+  {
+    id: 's3',
+    type: 'video',
+    src: '/images/portfolio/story-3.mp4',
+    posterSrc: '/images/portfolio/story-3-poster.jpg',
+  },
+];
+
+const makeHighlight = (id: string, label: string, coverSrc: string): PortfolioHighlight => ({
+  id,
+  label,
+  coverSrc,
+  items: PORTFOLIO_SAMPLE_ITEMS,
+});
+
+export const PORTFOLIO_CATEGORIES: PortfolioCategory[] = [
+  {
+    id: 'weddings',
+    title: 'Свадьбы',
+    highlights: [
+      makeHighlight('w-1', 'Winter 25', '/images/portfolio/cover-1.jpg'),
+      makeHighlight('w-2', 'Съёмки 4.0', '/images/portfolio/cover-2.jpg'),
+      makeHighlight('w-3', 'S', '/images/portfolio/cover-3.jpg'),
+      makeHighlight('w-4', '🐈 свадьбы', '/images/portfolio/cover-4.jpg'),
+      makeHighlight('w-5', 'Бьюти ✨', '/images/portfolio/cover-5.jpg'),
+    ],
+  },
+  {
+    id: 'studio',
+    title: 'Студийные съёмки',
+    highlights: [
+      makeHighlight('s-1', 'Winter 25', '/images/portfolio/cover-1.jpg'),
+      makeHighlight('s-2', 'Съёмки 4.0', '/images/portfolio/cover-2.jpg'),
+      makeHighlight('s-3', 'S', '/images/portfolio/cover-3.jpg'),
+      makeHighlight('s-4', '🐈 свадьбы', '/images/portfolio/cover-4.jpg'),
+      makeHighlight('s-5', 'Бьюти ✨', '/images/portfolio/cover-5.jpg'),
+    ],
+  },
+  {
+    id: 'outdoor',
+    title: 'Outdoor съёмки',
+    highlights: [
+      makeHighlight('o-1', 'Winter 25', '/images/portfolio/cover-1.jpg'),
+      makeHighlight('o-2', 'Съёмки 4.0', '/images/portfolio/cover-2.jpg'),
+      makeHighlight('o-3', 'S', '/images/portfolio/cover-3.jpg'),
+      makeHighlight('o-4', '🐈 свадьбы', '/images/portfolio/cover-4.jpg'),
+      makeHighlight('o-5', 'Бьюти ✨', '/images/portfolio/cover-5.jpg'),
+    ],
+  },
+];
+
 export const VOICE_REVIEWS = [
   {
     id: 'review1',

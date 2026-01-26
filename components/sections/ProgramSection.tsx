@@ -42,12 +42,9 @@ export default function ProgramSection() {
 
   useEffect(() => {
     if (selectedMedia?.type === 'video') {
-      setIsVideoEnded(false);
-      setShowMuteIndicator(false);
       const video = modalVideoRef.current;
       if (video) {
         video.muted = false;
-        setIsMuted(false);
         video.currentTime = 0;
         const playPromise = video.play();
         if (playPromise) {
@@ -69,6 +66,11 @@ export default function ProgramSection() {
     if (closeTimeout.current) {
       window.clearTimeout(closeTimeout.current);
       closeTimeout.current = null;
+    }
+    setShowMuteIndicator(false);
+    setIsVideoEnded(false);
+    if (item.type === 'video') {
+      setIsMuted(false);
     }
     setSelectedMedia(item);
     setIsMediaOpen(true);

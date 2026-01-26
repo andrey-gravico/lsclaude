@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useRef, useEffect, useCallback } from 'react';
+import { useState, useRef, useEffect, useCallback, useMemo } from 'react';
 import { motion } from 'framer-motion';
 import { cn, formatTime } from '@/lib/utils';
 
@@ -14,17 +14,37 @@ interface VoiceMessageProps {
 const SPEED_OPTIONS = [1, 1.5, 2] as const;
 type SpeedOption = typeof SPEED_OPTIONS[number];
 
+function hashToSeed(value: string) {
+  let hash = 2166136261;
+  for (let index = 0; index < value.length; index += 1) {
+    hash ^= value.charCodeAt(index);
+    hash = Math.imul(hash, 16777619);
+  }
+  return hash >>> 0;
+}
+
+function generateWaveformHeights(seedString: string, barsCount = 30) {
+  let state = hashToSeed(seedString) || 1;
+  const heights: number[] = [];
+
+  for (let index = 0; index < barsCount; index += 1) {
+    state ^= state << 13;
+    state ^= state >>> 17;
+    state ^= state << 5;
+    const normalized = (state >>> 0) / 0xffffffff;
+    heights.push(normalized * 0.7 + 0.3);
+  }
+
+  return heights;
+}
+
 export default function VoiceMessage({ src, name, duration, className }: VoiceMessageProps) {
   const [isPlaying, setIsPlaying] = useState(false);
   const [currentTime, setCurrentTime] = useState(0);
-  const [waveformHeights, setWaveformHeights] = useState<number[]>([]);
   const [playbackSpeed, setPlaybackSpeed] = useState<SpeedOption>(1);
   const audioRef = useRef<HTMLAudioElement>(null);
 
-  useEffect(() => {
-    const heights = Array.from({ length: 30 }, () => Math.random() * 0.7 + 0.3);
-    setWaveformHeights(heights);
-  }, []);
+  const waveformHeights = useMemo(() => generateWaveformHeights(`${src}|${name}`), [src, name]);
 
   // Update playback speed when changed
   useEffect(() => {
