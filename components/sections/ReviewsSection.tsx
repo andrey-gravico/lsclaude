@@ -289,8 +289,16 @@ export default function ReviewsSection() {
 
                 return (
                   <div key={item.id} className="py-3">
-                    <button
+                    <div
+                      role="button"
+                      tabIndex={0}
                       onClick={() => {
+                        if (!isActive) startVoice(item);
+                        else toggleVoice();
+                      }}
+                      onKeyDown={(event) => {
+                        if (event.key !== 'Enter' && event.key !== ' ') return;
+                        event.preventDefault();
                         if (!isActive) startVoice(item);
                         else toggleVoice();
                       }}
@@ -386,7 +394,7 @@ export default function ReviewsSection() {
                           unoptimized
                         />
                       </button>
-                    </button>
+                    </div>
                   </div>
                 );
               })}
@@ -516,4 +524,3 @@ export default function ReviewsSection() {
     </section>
   );
 }
-
