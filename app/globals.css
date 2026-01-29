@@ -198,7 +198,7 @@ html, body {
   -webkit-background-clip: text;
   background-clip: text;
   -webkit-text-fill-color: transparent;
-  animation: gradient-shift 4s ease infinite;
+  animation: gradient-shift 6s ease infinite;
 }
 
 /* Медленный shimmer только для "Удивляй" */
@@ -216,7 +216,7 @@ html, body {
   -webkit-background-clip: text;
   background-clip: text;
   -webkit-text-fill-color: transparent;
-  animation: slow-shimmer 8s ease-in-out infinite;
+  animation: slow-shimmer 12s ease-in-out infinite;
 }
 
 /* === СТИЛИ ДЛЯ МОДАЛОК === */
@@ -400,7 +400,7 @@ html, body {
 /* === QUIZ CARD STACK HEIGHT === */
 .quiz-card-stack {
   height: min(44vh, 380px);
-  height: min(56dvh, 480px);
+  height: min(66dvh, 600px);
   min-height: 260px;
 }
 

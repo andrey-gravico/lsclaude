@@ -103,32 +103,23 @@ export type ProgramWeek = {
 };
 
 // ПРОГРАММА КУРСА
+// пример видео: { id: 'w1-5', type: 'video', src: '/images/program/me.mp4', poster: '/images/program/mee.jpg', },
 export const PROGRAM_WEEKS: ProgramWeek[] = [
   {
     week: 1,
-    icon: '/images/icons/week1.png',
+    icon: '/images/icons/week1w.png',
     items: [
-      { id: 'w1-1', type: 'image', src: '/images/program/me.jpg' },
-      { id: 'w1-2', type: 'image', src: '/images/program/mee.jpg' },
-      {
-        id: 'w1-3',
-        type: 'video',
-        src: '/images/program/me.mp4',
-        poster: '/images/program/me.jpg',
-      },
-      { id: 'w1-4', type: 'image', src: '/images/program/mee.jpg' },
-      {
-        id: 'w1-5',
-        type: 'video',
-        src: '/images/program/me.mp4',
-        poster: '/images/program/mee.jpg',
-      },
-      { id: 'w1-6', type: 'image', src: '/images/program/me.jpg' },
+      { id: 'w1-1', type: 'image', src: '/images/program/1-1.jpg' },
+      { id: 'w1-2', type: 'image', src: '/images/program/1-2.jpg' },
+      { id: 'w1-3', type: 'image', src: '/images/program/1-3.jpg',},
+      { id: 'w1-4', type: 'image', src: '/images/program/1-6.png' },
+      { id: 'w1-5', type: 'image', src: '/images/program/1-9.jpg' },
+      { id: 'w1-6', type: 'image', src: '/images/program/1-4.jpg' },
     ],
   },
   {
     week: 2,
-    icon: '/images/icons/week2.png',
+    icon: '/images/icons/week2w.png',
     items: [
       { id: 'w2-1', type: 'image', src: '/images/program/mee.jpg' },
       {
@@ -150,7 +141,7 @@ export const PROGRAM_WEEKS: ProgramWeek[] = [
   },
   {
     week: 3,
-    icon: '/images/icons/week3.png',
+    icon: '/images/icons/week3w.png',
     items: [
       {
         id: 'w3-1',

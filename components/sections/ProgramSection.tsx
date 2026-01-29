@@ -238,11 +238,7 @@ export default function ProgramSection() {
             </svg>
             <div className="absolute inset-0 flex items-center justify-center">
               <div className="w-16 h-16 rounded-full border border-border bg-background-card overflow-hidden group-hover:border-accent transition-all">
-                <img
-                  src="/images/ava.png"
-                  alt="Avatar"
-                  className="w-full h-full object-cover"
-                />
+                <img src="/images/ava.png" alt="Avatar" className="w-full h-full object-cover"/>
               </div>
             </div>
           </button>

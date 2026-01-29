@@ -2,11 +2,9 @@
 
 import { useState } from 'react';
 import { motion, useMotionValue, useTransform, AnimatePresence } from 'framer-motion';
-import Image from 'next/image';
 import Button from '@/components/ui/Button';
-import Modal from '@/components/ui/Modal';
-import { SWIPE_QUIZ_CARDS, SWIPE_QUIZ_RESULTS, TELEGRAM_LINK, ABOUT_TEACHER, IMAGES } from '@/lib/constants';
-import { scrollToSection } from '@/lib/utils';
+import { SWIPE_QUIZ_CARDS, SWIPE_QUIZ_RESULTS, TELEGRAM_LINK} from '@/lib/constants';
+
 
 // Swipe Card Component
 interface SwipeCardProps {
@@ -78,19 +76,12 @@ function SwipeCard({ card, onSwipe, isTop, stackIndex, isFirst, currentCardNumbe
       />
 
       {/* Градиент снизу для текста */}
-      <div className="absolute inset-x-0 bottom-0 h-1/3 bg-gradient-to-t from-black/80 via-black/40 to-transparent pointer-events-none" />
+      <div className="absolute inset-x-0 bottom-0 h-1/2 bg-gradient-to-t from-black/90 via-black/50 to-transparent pointer-events-none" />
 
       {/* Текст вопроса внизу */}
-      <p className="absolute bottom-4 left-4 right-4 text-white text-lg font-bold leading-tight pointer-events-none">
+      <p className="absolute bottom-26 left-2 right-2 text-white text-2xl font-semibold leading-tight text-center pointer-events-none">
         {card.question}
       </p>
-
-      {/* Counter (only on top card) */}
-      {isTop && (
-        <div className="absolute top-4 -right-6 -translate-x-1/2 text-white/90 text-sm font-medium bg-black/40 backdrop-blur-sm px-2 py-1 rounded-full">
-          {currentCardNumber}/{totalCards}
-        </div>
-      )}
 
       {/* YES indicator */}
       <motion.div
@@ -108,7 +99,7 @@ function SwipeCard({ card, onSwipe, isTop, stackIndex, isFirst, currentCardNumbe
         НЕТ
       </motion.div>
 
-      {/* Кнопки по бокам - только для верхней карточки */}
+      {/* Кнопки по бокам */}
       {isTop && (
         <>
           <button
@@ -125,7 +116,6 @@ function SwipeCard({ card, onSwipe, isTop, stackIndex, isFirst, currentCardNumbe
           </button>
         </>
       )}
-
       {/* Подсказка свайпа - только на первой карточке */}
       {isTop && isFirst && (
         <motion.div
@@ -179,8 +169,8 @@ function ResultCard({ yesCount, onRestart }: ResultCardProps) {
           <div className="w-14 h-14 mb-2 rounded-full bg-accent/20 flex items-center justify-center">
             <span className="text-2xl">🎉</span>
           </div>
-          <h3 className="text-lg font-bold text-text-primary mb-1">{result.title}</h3>
-          <p className="text-text-secondary text-xs mb-2">{result.description}</p>
+          <h3 className="text-xl font-bold text-text-primary mb-1">{result.title}</h3>
+          <p className="text-text-secondary text-xs mb-2 pb-5">{result.description}</p>
           <div className="bg-accent/10 border border-accent rounded-xl p-2 mb-3 w-full max-w-[160px]">
             <p className="text-xs text-text-secondary">Твоя скидка:</p>
             <p className="text-xl font-bold text-accent">{result.discount}</p>
@@ -190,7 +180,7 @@ function ResultCard({ yesCount, onRestart }: ResultCardProps) {
             onClick={() => window.open(TELEGRAM_LINK, '_blank')}
             className="max-w-[220px]"
           >
-            Записаться со скидкой
+            Зафиксировать скидку
           </Button>
         </>
       ) : (
@@ -199,7 +189,7 @@ function ResultCard({ yesCount, onRestart }: ResultCardProps) {
             <span className="text-2xl">🤔</span>
           </div>
           <h3 className="text-lg font-bold text-text-primary mb-1">{result.title}</h3>
-          <p className="text-text-secondary text-xs mb-3">{result.description}</p>
+          <p className="text-text-secondary text-xs mb-3 pb-10">{result.description}</p>
           <Button
             variant="outline"
             fullWidth
@@ -258,100 +248,20 @@ export default function QuizSection() {
 
   return (
     <section id="quiz" className="snap-section section-padding flex flex-col">
-      {/* === HEADER (копия из ProgramSection) === */}
-      <header className="pt-2 safe-top">
-        <div className="pt-4 pl-3 pr-4 flex items-center justify-between">
-          <a
-            href={TELEGRAM_LINK}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="flex items-center gap-1 text-[8px] md:text-[9px] font-medium text-text-secondary hover:text-accent transition-colors uppercase tracking-wider"
-          >
-            <span className="text-xs">‹</span>
-            @LITTLESVETA
-          </a>
-          <div className="flex items-center gap-1.5">
-            <span className="w-1.5 h-1.5 rounded-full bg-accent" />
-            <span className="text-[8px] md:text-[9px] font-medium text-text-primary uppercase tracking-wider">
-              Курс по мобильной съёмке
-            </span>
-          </div>
-        </div>
-      </header>
-
-      {/* === MAIN CONTENT === */}
-      <div className="flex-1 flex flex-col">
-        {/* === Аватар + Текст === */}
+      <div className="flex-1 flex flex-col pt-5">
         <div className="flex items-center gap-3 px-0 py-3">
-          {/* Аватар с круговым текстом "Обо мне" */}
-          <button
-            onClick={() => setIsAboutOpen(true)}
-            className="relative w-28 h-28 flex-shrink-0 group"
-            aria-label="Обо мне"
-          >
-            <svg
-              className="absolute inset-0 w-full h-full circular-text"
-              viewBox="0 0 100 100"
-            >
-              <defs>
-                <path
-                  id="circlePathQuiz"
-                  d="M 50,50 m -34,0 a 34,34 0 1,1 68,0 a 34,34 0 1,1 -68,0"
-                />
-              </defs>
-              <text className="text-[7.0px] fill-text-secondary uppercase tracking-[0.40em]">
-                <textPath href="#circlePathQuiz">
-                  • ОБО МНЕ • ОБО МНЕ • ОБО МНЕ
-                </textPath>
-              </text>
-            </svg>
-            <div className="absolute inset-0 flex items-center justify-center">
-              <div className="w-16 h-16 rounded-full border border-border bg-background-card overflow-hidden group-hover:border-accent transition-all">
-                <img
-                  src="/images/ava.png"
-                  alt="Avatar"
-                  className="w-full h-full object-cover"
-                />
-              </div>
-            </div>
-          </button>
-
-          {/* Текст справа от аватара */}
           <div className="flex-1 flex flex-col gap-1 -mt-6">
-            <p className="text-[13px] font-semibold text-text-primary font-montserrat">
+            <p className="text-[13px] text-center font-semibold text-text-primary font-montserrat">
               Снимай | Монтируй | <span className="slow-shimmer font-bold">Удивляй</span>
             </p>
-            <h2 className="text-[22px] font-bold text-text-primary font-montserrat">
+            <h2 className="text-3xl text-center font-medium text-text-primary font-montserrat pt-3">
               Пройди тест
             </h2>
-            <ul className="text-xs text-text-secondary space-y-0.5">
-              <li>И получи подарок</li>
+            <ul className="text-sm text-center text-text-secondary space-y-0.5">
+              <li>Получи подарок</li>
             </ul>
           </div>
         </div>
-
-        {/* === Кнопки === */}
-        <div className="flex w-full justify-end pb-4 -mt-6">
-          <div className="flex items-center gap-3 px-2">
-                        <Button
-              onClick={() => window.open(TELEGRAM_LINK, '_blank')}
-              className="text-xs py-1 px-3 w-auto"
-            >
-              Записаться
-            </Button>
-            <Button
-              variant="outline"
-              onClick={() => scrollToSection('faq')}
-              className="text-xs py-1 px-3 w-auto"
-            >
-              Ответы на вопросы
-            </Button>
-
-          </div>
-        </div>
-
-        {/* === Серая линия === */}
-        <div className="border-t border-border w-screen -mx-4" />
 
         {/* === Quiz Area === */}
         <div className="flex-1 flex flex-col relative pt-4">
@@ -376,21 +286,26 @@ export default function QuizSection() {
                     <path d="M7 12l3 3 7-7" strokeLinecap="round" strokeLinejoin="round" />
                   </svg>
                 </div>
-                <p className="text-text-primary text-lg mb-2">Пройди тест и получи подарок!</p>
+                <p className="text-text-primary text-lg mb-2">Свайпай!</p>
                 <p className="text-text-secondary text-sm mb-5">
                   Вправо = ДА, Влево = НЕТ
                 </p>
                 <Button onClick={handleStart} className="px-8">
-                  ТЕСТ
+                  ПРОЙТИ ТЕСТ
                 </Button>
               </motion.div>
             </div>
           ) : !quizComplete ? (
-            /* Quiz Cards */
+/* Quiz Cards */
             <div className="flex-1 flex flex-col overflow-hidden">
-              {/* Счётчик вверху справа */}
-              {/* Card Stack - фиксированная высота */}
+{/* Card Stack - фиксированная высота */}
               <div className="relative w-full max-w-[440px] mx-auto flex-none quiz-card-stack">
+{/* Счётчик вверху справа */}
+                {cards.length > 0 && (
+                  <div className="absolute top-2 right-2 sm:top-3 sm:right-3 z-50 pointer-events-none text-white/90 text-xs sm:text-sm font-medium bg-black/40 backdrop-blur-sm px-2 py-1 rounded-full">
+                    {currentCardNumber}/{totalCards}
+                  </div>
+                )}
                 <AnimatePresence mode="popLayout">
                   {cards.slice(0, 3).map((card, index) => (
                     <SwipeCard
@@ -417,55 +332,6 @@ export default function QuizSection() {
           )}
         </div>
       </div>
-
-      {/* === ABOUT MODAL === */}
-      <Modal
-        isOpen={isAboutOpen}
-        onClose={() => setIsAboutOpen(false)}
-        title="Обо мне"
-      >
-        <div className="p-5">
-          <div className="flex items-center gap-4 mb-4">
-            <div className="relative w-20 h-20 rounded-full overflow-hidden border-2 border-border">
-              <Image
-                src={IMAGES.avatar}
-                alt={ABOUT_TEACHER.name}
-                fill
-                className="object-cover"
-                unoptimized
-              />
-            </div>
-            <div>
-              <h3 className="text-xl font-bold text-text-primary">
-                {ABOUT_TEACHER.name}
-              </h3>
-              <p className="text-sm text-text-secondary">{ABOUT_TEACHER.role}</p>
-            </div>
-          </div>
-          <p className="text-text-secondary whitespace-pre-line leading-relaxed text-sm">
-            {ABOUT_TEACHER.description}
-          </p>
-          <div className="mt-6 grid grid-cols-3 gap-3">
-            {ABOUT_TEACHER.stats.map((stat) => (
-              <div
-                key={stat.label}
-                className="text-center p-3 rounded-xl bg-background-card border border-border"
-              >
-                <p className="text-xl font-bold text-accent">{stat.value}</p>
-                <p className="text-[10px] text-text-secondary mt-1">{stat.label}</p>
-              </div>
-            ))}
-          </div>
-          <div className="mt-6">
-            <Button
-              fullWidth
-              onClick={() => window.open(TELEGRAM_LINK, '_blank')}
-            >
-              Написать в Telegram
-            </Button>
-          </div>
-        </div>
-      </Modal>
     </section>
   );
 }
