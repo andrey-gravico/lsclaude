@@ -275,16 +275,7 @@ export default function QuizSection() {
               >
                 {/* SVG иконка чеклиста */}
                 <div className="w-20 h-20 mx-auto mb-4 rounded-full border-2 border-border flex items-center justify-center bg-background-card">
-                  <svg
-                    className="w-9 h-9 text-accent"
-                    viewBox="0 0 24 24"
-                    fill="none"
-                    stroke="currentColor"
-                    strokeWidth="1.5"
-                  >
-                    <rect x="3" y="3" width="18" height="18" rx="3" />
-                    <path d="M7 12l3 3 7-7" strokeLinecap="round" strokeLinejoin="round" />
-                  </svg>
+                  <img src="/images/icons/quizz.png" alt="" className="w-9 h-9" draggable={false} />
                 </div>
                 <p className="text-text-primary text-lg mb-2">Свайпай!</p>
                 <p className="text-text-secondary text-sm mb-5">
