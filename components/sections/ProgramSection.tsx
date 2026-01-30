@@ -288,7 +288,7 @@ export default function ProgramSection() {
               <img
                 src={week.icon}
                 alt={`Неделя ${week.week}`}
-                className={`w-8 h-8 transition-opacity ${
+                className={`w-6 h-6 transition-opacity ${
                   activeWeek === index ? 'opacity-100' : 'opacity-50'
                 }`}
               />
