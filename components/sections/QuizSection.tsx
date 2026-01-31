@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useLayoutEffect, useRef, useState } from 'react';
 import { motion, useMotionValue, useTransform, animate } from 'framer-motion';
 import Button from '@/components/ui/Button';
 import { SWIPE_QUIZ_CARDS, SWIPE_QUIZ_RESULTS, TELEGRAM_LINK} from '@/lib/constants';
@@ -140,9 +140,16 @@ export default function QuizSection() {
   const rightGradientHeight = useTransform(rightProgress, [0, 1], ['10%', '33%']);
   const iconScale = useTransform(swipeProgress, [0, 1], [0.9, 1]);
 
-  useEffect(() => {
+  useLayoutEffect(() => {
+    swipeX.stop();
     swipeX.set(0);
   }, [cards[0]?.id, swipeX]);
+
+  useEffect(() => {
+    if (!cards[1]?.image) return;
+    const img = new Image();
+    img.src = cards[1].image;
+  }, [cards]);
 
   const handleSwipe = (direction: 'left' | 'right') => {
     if (cards.length === 0) return;
@@ -162,7 +169,6 @@ export default function QuizSection() {
     const target = direction === 'right' ? swipeThreshold * 3 : -swipeThreshold * 3;
     animate(swipeX, target, { duration: 0.38, ease: 'easeOut' });
     window.setTimeout(() => {
-      swipeX.set(0);
       handleSwipe(direction);
     }, 380);
   };
@@ -249,6 +255,7 @@ export default function QuizSection() {
                 {/* Next card reveal (only visible while dragging) */}
                 {cards[1] && (
                   <motion.div
+                    key={cards[1].id}
                     style={{ opacity: nextOpacity, scale: nextScale, filter: nextBrightness }}
                     className="absolute inset-0 rounded-[24px] overflow-hidden shadow-[0_12px_40px_rgba(0,0,0,0.45)]"
                   >
@@ -258,6 +265,7 @@ export default function QuizSection() {
 
                 {cards[0] && (
                   <motion.div
+                    key={cards[0].id}
                     style={{ x: swipeX }}
                     drag="x"
                     dragConstraints={{ left: 0, right: 0 }}
