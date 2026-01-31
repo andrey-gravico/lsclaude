@@ -1,7 +1,7 @@
 'use client';
 
-import { useState } from 'react';
-import { motion, useMotionValue, useTransform, AnimatePresence } from 'framer-motion';
+import { useEffect, useRef, useState } from 'react';
+import { motion, useMotionValue, useTransform, AnimatePresence, LayoutGroup } from 'framer-motion';
 import Button from '@/components/ui/Button';
 import { SWIPE_QUIZ_CARDS, SWIPE_QUIZ_RESULTS, TELEGRAM_LINK} from '@/lib/constants';
 
@@ -15,9 +15,19 @@ interface SwipeCardProps {
   isFirst: boolean;
   currentCardNumber: number;
   totalCards: number;
+  layoutId?: string;
 }
 
-function SwipeCard({ card, onSwipe, isTop, stackIndex, isFirst, currentCardNumber, totalCards }: SwipeCardProps) {
+function SwipeCard({
+  card,
+  onSwipe,
+  isTop,
+  stackIndex,
+  isFirst,
+  currentCardNumber,
+  totalCards,
+  layoutId,
+}: SwipeCardProps) {
   const x = useMotionValue(0);
   const rotate = useTransform(x, [-200, 200], [-15, 15]);
   const yesOpacity = useTransform(x, [0, 100], [0, 1]);
@@ -31,15 +41,17 @@ function SwipeCard({ card, onSwipe, isTop, stackIndex, isFirst, currentCardNumbe
     }
   };
 
-  // Эффект колоды - смещение для каждой карточки
+  // Stack effect offsets for each card.
+  // Deck depth tuning: scale/y/x control the visible stack spacing.
   const stackOffset = {
-    scale: 1 - stackIndex * 0.04,
-    y: stackIndex * 8,
-    x: stackIndex * 4,
+    scale: 1 - stackIndex * 0.035,
+    y: stackIndex * 10,
+    x: stackIndex * 6,
   };
 
   return (
     <motion.div
+      layoutId={layoutId}
       style={{
         x: isTop ? x : stackOffset.x,
         rotate: isTop ? rotate : 0,
@@ -64,10 +76,9 @@ function SwipeCard({ card, onSwipe, isTop, stackIndex, isFirst, currentCardNumbe
         opacity: 0,
         transition: { duration: 0.3, ease: 'easeOut' }
       }}
-      className="absolute inset-0 rounded-2xl overflow-hidden shadow-2xl cursor-grab active:cursor-grabbing bg-black"
+      className="absolute inset-0 rounded-[24px] overflow-hidden shadow-[0_6px_20px_rgba(0,0,0,0.45),0_24px_80px_rgba(0,0,0,0.7)] cursor-grab active:cursor-grabbing bg-black"
       whileDrag={{ cursor: 'grabbing' }}
     >
-      {/* Фоновая картинка */}
       <img
         src={card.image}
         alt=""
@@ -75,10 +86,8 @@ function SwipeCard({ card, onSwipe, isTop, stackIndex, isFirst, currentCardNumbe
         draggable={false}
       />
 
-      {/* Градиент снизу для текста */}
       <div className="absolute inset-x-0 bottom-0 h-1/2 bg-gradient-to-t from-black/90 via-black/50 to-transparent pointer-events-none" />
 
-      {/* Текст вопроса внизу */}
       <p className="absolute bottom-26 left-2 right-2 text-white text-2xl font-semibold leading-tight text-center pointer-events-none">
         {card.question}
       </p>
@@ -99,7 +108,6 @@ function SwipeCard({ card, onSwipe, isTop, stackIndex, isFirst, currentCardNumbe
         НЕТ
       </motion.div>
 
-      {/* Кнопки по бокам */}
       {isTop && (
         <>
           <button
@@ -116,7 +124,6 @@ function SwipeCard({ card, onSwipe, isTop, stackIndex, isFirst, currentCardNumbe
           </button>
         </>
       )}
-      {/* Подсказка свайпа - только на первой карточке */}
       {isTop && isFirst && (
         <motion.div
           initial={{ opacity: 0 }}
@@ -134,7 +141,6 @@ function SwipeCard({ card, onSwipe, isTop, stackIndex, isFirst, currentCardNumbe
         </motion.div>
       )}
 
-      {/* Тень для эффекта колоды */}
       {stackIndex > 0 && (
         <div className="absolute inset-0 bg-black/10 pointer-events-none" />
       )}
@@ -205,13 +211,25 @@ function ResultCard({ yesCount, onRestart }: ResultCardProps) {
 }
 
 export default function QuizSection() {
-  const [isAboutOpen, setIsAboutOpen] = useState(false);
   const [cards, setCards] = useState([...SWIPE_QUIZ_CARDS]);
   const [yesCount, setYesCount] = useState(0);
   const [quizStarted, setQuizStarted] = useState(false);
   const [quizComplete, setQuizComplete] = useState(false);
   const [exitingCard, setExitingCard] = useState<number | null>(null);
+  const startCardRef = useRef<HTMLDivElement>(null);
+  const [startCardWidth, setStartCardWidth] = useState(0);
   const totalCards = SWIPE_QUIZ_CARDS.length;
+
+  useEffect(() => {
+    const updateWidth = () => {
+      if (startCardRef.current) {
+        setStartCardWidth(startCardRef.current.offsetWidth);
+      }
+    };
+    updateWidth();
+    window.addEventListener('resize', updateWidth);
+    return () => window.removeEventListener('resize', updateWidth);
+  }, []);
 
   const handleSwipe = (direction: 'left' | 'right') => {
     if (cards.length === 0) return;
@@ -245,53 +263,69 @@ export default function QuizSection() {
   };
 
   const currentCardNumber = totalCards - cards.length + 1;
+  // Start swipe threshold: 35% of card width (fallback 120px).
+  const startSwipeThreshold = startCardWidth ? startCardWidth * 0.35 : 120;
 
   return (
     <section id="quiz" className="snap-section section-padding flex flex-col">
-      <div className="flex-1 flex flex-col pt-5">
-        <div className="flex items-center gap-3 px-0 py-3">
-          <div className="flex-1 flex flex-col gap-1 -mt-6">
-            <p className="text-[13px] text-center font-semibold text-text-primary font-montserrat">
+      <LayoutGroup>
+        <div className="flex-1 flex flex-col pt-4">
+          <div className="px-0 pt-2 pb-3">
+            <p className="text-[18px] sm:text-[20px] text-center font-semibold text-text-primary font-montserrat">
               Снимай | Монтируй | <span className="slow-shimmer font-bold">Удивляй</span>
             </p>
-            <h2 className="text-3xl text-center font-medium text-text-primary font-montserrat pt-3">
-              Пройди тест
-            </h2>
-            <ul className="text-sm text-center text-text-secondary space-y-0.5">
-              <li>Получи подарок</li>
-            </ul>
           </div>
-        </div>
 
-        {/* === Quiz Area === */}
-        <div className="flex-1 flex flex-col relative pt-4">
-          {!quizStarted ? (
-            /* Начальный экран */
-            <div className="flex-1 flex flex-col items-center mt-20 px-4">
-              <motion.div
-                initial={{ scale: 0.9, opacity: 0 }}
-                animate={{ scale: 1, opacity: 1 }}
-                className="text-center"
-              >
-                {/* SVG иконка чеклиста */}
-                <div className="w-20 h-20 mx-auto mb-4 rounded-full border-2 border-border flex items-center justify-center bg-background-card">
-                  <img src="/images/icons/quizz.png" alt="" className="w-9 h-9" draggable={false} />
-                </div>
-                <p className="text-text-primary text-lg mb-2">Свайпай!</p>
-                <p className="text-text-secondary text-sm mb-5">
-                  Вправо = ДА, Влево = НЕТ
-                </p>
-                <Button onClick={handleStart} className="px-8">
-                  ПРОЙТИ ТЕСТ
-                </Button>
-              </motion.div>
+          {/* === Quiz Area === */}
+          <div className="flex-1 flex flex-col relative">
+            {!quizStarted ? (
+            /* Start Swipe Card */
+            <div className="flex-1 flex flex-col items-center justify-center px-3 pb-[calc(env(safe-area-inset-bottom,0)+84px)]">
+              {/* 98% keeps breathing room from header and bottom nav */}
+              <div className="relative w-[98%] h-[calc(100dvh-140px)] min-h-[70vh]">
+                {/* Stack silhouettes (shadow only) */}
+                <div className="absolute inset-0 translate-x-1 translate-y-2 scale-[0.98] rounded-[24px] bg-black/20 shadow-[0_14px_40px_rgba(0,0,0,0.45)]" />
+                <div className="absolute inset-0 translate-x-2 translate-y-4 scale-[0.96] rounded-[24px] bg-black/25 shadow-[0_18px_50px_rgba(0,0,0,0.55)]" />
+
+                <motion.div
+                  ref={startCardRef}
+                  layoutId="quiz-start-card"
+                  // Entrance + drift: adjust scale/y and x keyframes/duration for feel.
+                  initial={{ opacity: 0, y: 26, scale: 0.92 }}
+                  animate={{ opacity: [0, 1], y: [26, 0], scale: [0.92, 1.03, 1], x: [0, 7, 0, -7, 0] }}
+                  transition={{
+                    duration: 0.85,
+                    ease: 'easeOut',
+                    x: { duration: 4.5, repeat: Infinity, ease: 'easeInOut' },
+                  }}
+                  drag="x"
+                  dragConstraints={{ left: 0, right: 0 }}
+                  dragElastic={0.6}
+                  dragMomentum={false}
+                  onDragEnd={(_, info) => {
+                    if (Math.abs(info.offset.x) >= startSwipeThreshold) {
+                      handleStart();
+                    }
+                  }}
+                  whileDrag={{ scale: 0.99 }}
+                  whileTap={{ scale: 1.02 }} // Touch feedback (slight lift)
+                  className="relative z-10 w-full h-full rounded-[24px] overflow-hidden shadow-[0_6px_20px_rgba(0,0,0,0.45),0_28px_90px_rgba(0,0,0,0.75)]"
+                >
+                  <img
+                    src="/images/test/quizhero.png"
+                    alt=""
+                    className="w-full h-full object-cover select-none pointer-events-none"
+                    draggable={false}
+                  />
+                </motion.div>
+              </div>
             </div>
           ) : !quizComplete ? (
-/* Quiz Cards */
+            /* Quiz Cards */
             <div className="flex-1 flex flex-col overflow-hidden">
-{/* Card Stack - фиксированная высота */}
-              <div className="relative w-full max-w-[440px] mx-auto flex-none quiz-card-stack">
-{/* Счётчик вверху справа */}
+              {/* Card Stack - size matches start card */}
+              <div className="relative w-[98%] h-[calc(100dvh-140px)] min-h-[70vh] mx-auto flex-none">
+                {/* Card counter */}
                 {cards.length > 0 && (
                   <div className="absolute top-2 right-2 sm:top-3 sm:right-3 z-50 pointer-events-none text-white/90 text-xs sm:text-sm font-medium bg-black/40 backdrop-blur-sm px-2 py-1 rounded-full">
                     {currentCardNumber}/{totalCards}
@@ -308,6 +342,7 @@ export default function QuizSection() {
                       isFirst={currentCardNumber === 1 && index === 0}
                       currentCardNumber={currentCardNumber}
                       totalCards={totalCards}
+                      layoutId={index === 0 && currentCardNumber === 1 ? 'quiz-start-card' : undefined}
                     />
                   ))}
                 </AnimatePresence>
@@ -316,13 +351,14 @@ export default function QuizSection() {
           ) : (
             /* Result */
             <div className="flex-1 flex flex-col overflow-hidden">
-              <div className="relative w-full max-w-[440px] mx-auto flex-none quiz-card-stack p-3">
+              <div className="relative w-[98%] h-[calc(100dvh-140px)] min-h-[70vh] mx-auto flex-none p-3">
                 <ResultCard yesCount={yesCount} onRestart={handleRestart} />
               </div>
             </div>
           )}
+          </div>
         </div>
-      </div>
+      </LayoutGroup>
     </section>
   );
 }
