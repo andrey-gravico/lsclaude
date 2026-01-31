@@ -1,150 +1,29 @@
 'use client';
 
 import { useEffect, useRef, useState } from 'react';
-import { motion, useMotionValue, useTransform, AnimatePresence, LayoutGroup } from 'framer-motion';
+import { motion, useMotionValue, useTransform, animate } from 'framer-motion';
 import Button from '@/components/ui/Button';
 import { SWIPE_QUIZ_CARDS, SWIPE_QUIZ_RESULTS, TELEGRAM_LINK} from '@/lib/constants';
 
 
-// Swipe Card Component
-interface SwipeCardProps {
+// Card face content used by top and next cards.
+interface CardFaceProps {
   card: { id: number; question: string; image: string };
-  onSwipe: (direction: 'left' | 'right') => void;
-  isTop: boolean;
-  stackIndex: number;
-  isFirst: boolean;
-  currentCardNumber: number;
-  totalCards: number;
-  layoutId?: string;
 }
 
-function SwipeCard({
-  card,
-  onSwipe,
-  isTop,
-  stackIndex,
-  isFirst,
-  currentCardNumber,
-  totalCards,
-  layoutId,
-}: SwipeCardProps) {
-  const x = useMotionValue(0);
-  const rotate = useTransform(x, [-200, 200], [-15, 15]);
-  const yesOpacity = useTransform(x, [0, 100], [0, 1]);
-  const noOpacity = useTransform(x, [-100, 0], [1, 0]);
-
-  const handleDragEnd = (_: unknown, info: { offset: { x: number } }) => {
-    if (info.offset.x > 100) {
-      onSwipe('right');
-    } else if (info.offset.x < -100) {
-      onSwipe('left');
-    }
-  };
-
-  // Stack effect offsets for each card.
-  // Deck depth tuning: scale/y/x control the visible stack spacing.
-  const stackOffset = {
-    scale: 1 - stackIndex * 0.035,
-    y: stackIndex * 10,
-    x: stackIndex * 6,
-  };
-
+function CardFace({ card }: CardFaceProps) {
   return (
-    <motion.div
-      layoutId={layoutId}
-      style={{
-        x: isTop ? x : stackOffset.x,
-        rotate: isTop ? rotate : 0,
-        scale: stackOffset.scale,
-        y: stackOffset.y,
-        zIndex: 10 - stackIndex,
-      }}
-      drag={isTop ? 'x' : false}
-      dragConstraints={{ left: 0, right: 0 }}
-      dragElastic={0.7}
-      onDragEnd={isTop ? handleDragEnd : undefined}
-      initial={{ scale: 0.95, opacity: 0 }}
-      animate={{
-        scale: stackOffset.scale,
-        opacity: 1 - stackIndex * 0.15,
-        y: stackOffset.y,
-        x: isTop ? 0 : stackOffset.x,
-      }}
-      exit={{
-        x: x.get() > 0 ? 400 : -400,
-        rotate: x.get() > 0 ? 20 : -20,
-        opacity: 0,
-        transition: { duration: 0.3, ease: 'easeOut' }
-      }}
-      className="absolute inset-0 rounded-[24px] overflow-hidden shadow-[0_6px_20px_rgba(0,0,0,0.45),0_24px_80px_rgba(0,0,0,0.7)] cursor-grab active:cursor-grabbing bg-black"
-      whileDrag={{ cursor: 'grabbing' }}
-    >
+    <>
       <img
         src={card.image}
         alt=""
         className="absolute inset-0 w-full h-full object-cover select-none pointer-events-none"
         draggable={false}
       />
-
-      <div className="absolute inset-x-0 bottom-0 h-1/2 bg-gradient-to-t from-black/90 via-black/50 to-transparent pointer-events-none" />
-
-      <p className="absolute bottom-26 left-2 right-2 text-white text-2xl font-semibold leading-tight text-center pointer-events-none">
+      <p className="absolute left-6 right-6 top-1/2 -translate-y-1/2 text-white text-2xl font-semibold leading-tight text-center pointer-events-none">
         {card.question}
       </p>
-
-      {/* YES indicator */}
-      <motion.div
-        style={{ opacity: yesOpacity }}
-        className="absolute top-4 right-4 text-green-400 font-bold text-2xl rotate-12 border-3 border-green-400 px-2 py-0.5 rounded-lg bg-green-400/20 backdrop-blur-sm"
-      >
-        ДА
-      </motion.div>
-
-      {/* NO indicator */}
-      <motion.div
-        style={{ opacity: noOpacity }}
-        className="absolute top-4 left-4 text-red-400 font-bold text-2xl -rotate-12 border-3 border-red-400 px-2 py-0.5 rounded-lg bg-red-400/20 backdrop-blur-sm"
-      >
-        НЕТ
-      </motion.div>
-
-      {isTop && (
-        <>
-          <button
-            onClick={(e) => { e.stopPropagation(); onSwipe('left'); }}
-            className="absolute left-3 top-1/2 -translate-y-1/2 w-11 h-11 rounded-full border-2 border-white/40 flex items-center justify-center text-white bg-black/30 backdrop-blur-xs hover:bg-red-500/40 hover:border-red-400 transition-colors"
-          >
-            <span className="text-2xl">✕</span>
-          </button>
-          <button
-            onClick={(e) => { e.stopPropagation(); onSwipe('right'); }}
-            className="absolute right-3 top-1/2 -translate-y-1/2 w-11 h-11 rounded-full border-2 border-white/40 flex items-center justify-center text-white bg-black/30 backdrop-blur-xs hover:bg-green-500/40 hover:border-green-400 transition-colors"
-          >
-            <span className="text-2xl">♥</span>
-          </button>
-        </>
-      )}
-      {isTop && isFirst && (
-        <motion.div
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          transition={{ delay: 0.5 }}
-          className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 pointer-events-none"
-        >
-          <motion.div
-            animate={{ x: [0, 30, 0, -30, 0] }}
-            transition={{ duration: 2, repeat: 2, ease: 'easeInOut' }}
-            className="flex items-center gap-2 bg-black/50 backdrop-blur-sm px-4 py-2 rounded-full"
-          >
-            <span className="text-white/80 text-sm">← свайпай →</span>
-          </motion.div>
-        </motion.div>
-      )}
-
-      {stackIndex > 0 && (
-        <div className="absolute inset-0 bg-black/10 pointer-events-none" />
-      )}
-    </motion.div>
+    </>
   );
 }
 
@@ -215,8 +94,9 @@ export default function QuizSection() {
   const [yesCount, setYesCount] = useState(0);
   const [quizStarted, setQuizStarted] = useState(false);
   const [quizComplete, setQuizComplete] = useState(false);
-  const [exitingCard, setExitingCard] = useState<number | null>(null);
   const startCardRef = useRef<HTMLDivElement>(null);
+  const sectionRef = useRef<HTMLElement>(null);
+  const [startAnimKey, setStartAnimKey] = useState(0);
   const [startCardWidth, setStartCardWidth] = useState(0);
   const totalCards = SWIPE_QUIZ_CARDS.length;
 
@@ -231,24 +111,60 @@ export default function QuizSection() {
     return () => window.removeEventListener('resize', updateWidth);
   }, []);
 
+  useEffect(() => {
+    const node = sectionRef.current;
+    if (!node) return;
+    const observer = new IntersectionObserver(
+      (entries) => {
+        entries.forEach((entry) => {
+          if (entry.isIntersecting && !quizStarted) {
+            setStartAnimKey((prev) => prev + 1);
+          }
+        });
+      },
+      { root: document.querySelector('.snap-container'), threshold: 0.6 }
+    );
+    observer.observe(node);
+    return () => observer.disconnect();
+  }, [quizStarted]);
+
+  const swipeX = useMotionValue(0);
+  const swipeThreshold = startCardWidth ? startCardWidth * 0.45 : 160;
+  const swipeProgress = useTransform(swipeX, (value) => Math.min(Math.abs(value) / swipeThreshold, 1));
+  const leftProgress = useTransform(swipeX, (value) => (value < 0 ? Math.min(-value / swipeThreshold, 1) : 0));
+  const rightProgress = useTransform(swipeX, (value) => (value > 0 ? Math.min(value / swipeThreshold, 1) : 0));
+  const nextScale = useTransform(swipeProgress, [0, 1], [0.8, 1]);
+  const nextOpacity = useTransform(swipeProgress, [0, 1], [0, 1]);
+  const nextBrightness = useTransform(swipeProgress, (value) => `brightness(${0.65 + 0.35 * value})`);
+  const leftGradientHeight = useTransform(leftProgress, [0, 1], ['10%', '33%']);
+  const rightGradientHeight = useTransform(rightProgress, [0, 1], ['10%', '33%']);
+  const iconScale = useTransform(swipeProgress, [0, 1], [0.9, 1]);
+
+  useEffect(() => {
+    swipeX.set(0);
+  }, [cards[0]?.id, swipeX]);
+
   const handleSwipe = (direction: 'left' | 'right') => {
     if (cards.length === 0) return;
-
-    const currentCard = cards[0];
-    setExitingCard(currentCard.id);
 
     if (direction === 'right') {
       setYesCount((prev) => prev + 1);
     }
 
-    setTimeout(() => {
-      setCards((prev) => prev.slice(1));
-      setExitingCard(null);
+    if (cards.length === 1) {
+      setTimeout(() => setQuizComplete(true), 100);
+    }
 
-      if (cards.length === 1) {
-        setTimeout(() => setQuizComplete(true), 100);
-      }
-    }, 200);
+    setCards((prev) => prev.slice(1));
+  };
+
+  const triggerSwipe = (direction: 'left' | 'right') => {
+    const target = direction === 'right' ? swipeThreshold * 3 : -swipeThreshold * 3;
+    animate(swipeX, target, { duration: 0.38, ease: 'easeOut' });
+    window.setTimeout(() => {
+      swipeX.set(0);
+      handleSwipe(direction);
+    }, 380);
   };
 
   const handleRestart = () => {
@@ -267,9 +183,8 @@ export default function QuizSection() {
   const startSwipeThreshold = startCardWidth ? startCardWidth * 0.35 : 120;
 
   return (
-    <section id="quiz" className="snap-section section-padding flex flex-col">
-      <LayoutGroup>
-        <div className="flex-1 flex flex-col pt-4">
+    <section id="quiz" ref={sectionRef} className="snap-section section-padding flex flex-col">
+      <div className="flex-1 flex flex-col pt-4">
           <div className="px-0 pt-2 pb-3">
             <p className="text-[18px] sm:text-[20px] text-center font-semibold text-text-primary font-montserrat">
               Снимай | Монтируй | <span className="slow-shimmer font-bold">Удивляй</span>
@@ -284,19 +199,19 @@ export default function QuizSection() {
               {/* 98% keeps breathing room from header and bottom nav */}
               <div className="relative w-[98%] h-[calc(100dvh-140px)] min-h-[70vh]">
                 {/* Stack silhouettes (shadow only) */}
-                <div className="absolute inset-0 translate-x-1 translate-y-2 scale-[0.98] rounded-[24px] bg-black/20 shadow-[0_14px_40px_rgba(0,0,0,0.45)]" />
-                <div className="absolute inset-0 translate-x-2 translate-y-4 scale-[0.96] rounded-[24px] bg-black/25 shadow-[0_18px_50px_rgba(0,0,0,0.55)]" />
+                <div className="absolute -inset-6 rounded-[32px] bg-black/35 blur-[18px]" />
+                <div className="absolute inset-0 translate-x-1 translate-y-2 scale-[0.98] rounded-[24px] bg-black/25 shadow-[0_18px_50px_rgba(0,0,0,0.6)]" />
+                <div className="absolute inset-0 translate-x-2 translate-y-4 scale-[0.96] rounded-[24px] bg-black/30 shadow-[0_22px_60px_rgba(0,0,0,0.7)]" />
 
                 <motion.div
                   ref={startCardRef}
-                  layoutId="quiz-start-card"
-                  // Entrance + drift: adjust scale/y and x keyframes/duration for feel.
-                  initial={{ opacity: 0, y: 26, scale: 0.92 }}
-                  animate={{ opacity: [0, 1], y: [26, 0], scale: [0.92, 1.03, 1], x: [0, 7, 0, -7, 0] }}
+                  key={startAnimKey}
+                  // Fade-in on section entry + paused drift (left-center-pause-right-center-pause).
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1, x: [0, -7, 0, 0, 7, 0, 0] }}
                   transition={{
-                    duration: 0.85,
-                    ease: 'easeOut',
-                    x: { duration: 4.5, repeat: Infinity, ease: 'easeInOut' },
+                    opacity: { duration: 1.2, ease: 'easeOut' },
+                    x: { duration: 6, repeat: Infinity, ease: 'easeInOut', times: [0, 0.2, 0.4, 0.55, 0.75, 0.9, 1] },
                   }}
                   drag="x"
                   dragConstraints={{ left: 0, right: 0 }}
@@ -309,7 +224,7 @@ export default function QuizSection() {
                   }}
                   whileDrag={{ scale: 0.99 }}
                   whileTap={{ scale: 1.02 }} // Touch feedback (slight lift)
-                  className="relative z-10 w-full h-full rounded-[24px] overflow-hidden shadow-[0_6px_20px_rgba(0,0,0,0.45),0_28px_90px_rgba(0,0,0,0.75)]"
+                  className="relative z-10 w-full h-full rounded-[24px] overflow-hidden shadow-[0_20px_70px_rgba(0,0,0,0.9),0_0_0_1px_rgba(255,255,255,0.04)]"
                 >
                   <img
                     src="/images/test/quizhero.png"
@@ -323,7 +238,6 @@ export default function QuizSection() {
           ) : !quizComplete ? (
             /* Quiz Cards */
             <div className="flex-1 flex flex-col overflow-hidden">
-              {/* Card Stack - size matches start card */}
               <div className="relative w-[98%] h-[calc(100dvh-140px)] min-h-[70vh] mx-auto flex-none">
                 {/* Card counter */}
                 {cards.length > 0 && (
@@ -331,21 +245,81 @@ export default function QuizSection() {
                     {currentCardNumber}/{totalCards}
                   </div>
                 )}
-                <AnimatePresence mode="popLayout">
-                  {cards.slice(0, 3).map((card, index) => (
-                    <SwipeCard
-                      key={card.id}
-                      card={card}
-                      onSwipe={handleSwipe}
-                      isTop={index === 0 && exitingCard !== card.id}
-                      stackIndex={index}
-                      isFirst={currentCardNumber === 1 && index === 0}
-                      currentCardNumber={currentCardNumber}
-                      totalCards={totalCards}
-                      layoutId={index === 0 && currentCardNumber === 1 ? 'quiz-start-card' : undefined}
+
+                {/* Next card reveal (only visible while dragging) */}
+                {cards[1] && (
+                  <motion.div
+                    style={{ opacity: nextOpacity, scale: nextScale, filter: nextBrightness }}
+                    className="absolute inset-0 rounded-[24px] overflow-hidden shadow-[0_12px_40px_rgba(0,0,0,0.45)]"
+                  >
+                    <CardFace card={cards[1]} />
+                  </motion.div>
+                )}
+
+                {cards[0] && (
+                  <motion.div
+                    style={{ x: swipeX }}
+                    drag="x"
+                    dragConstraints={{ left: 0, right: 0 }}
+                    dragElastic={1}
+                    dragMomentum={false}
+                    onDragEnd={(_, info) => {
+                      if (Math.abs(info.offset.x) >= swipeThreshold) {
+                        triggerSwipe(info.offset.x > 0 ? 'right' : 'left');
+                      } else {
+                        animate(swipeX, 0, { type: 'spring', stiffness: 520, damping: 32 });
+                      }
+                    }}
+                    className="absolute inset-0 rounded-[24px] overflow-hidden shadow-[0_20px_70px_rgba(0,0,0,0.9),0_0_0_1px_rgba(255,255,255,0.04)] bg-black cursor-grab active:cursor-grabbing"
+                    whileDrag={{ cursor: 'grabbing' }}
+                  >
+                    <CardFace card={cards[0]} />
+
+                    {/* Directional gradients (intensity follows drag) */}
+                    <motion.div
+                      style={{ height: leftGradientHeight, opacity: leftProgress }}
+                      className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-[#fd9290] to-transparent pointer-events-none"
                     />
-                  ))}
-                </AnimatePresence>
+                    <motion.div
+                      style={{ height: rightGradientHeight, opacity: rightProgress }}
+                      className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-[#d1e1c2] to-transparent pointer-events-none"
+                    />
+
+                    {/* Center drag icons */}
+                    <motion.img
+                      src="/images/icons/no.png"
+                      alt=""
+                      style={{ opacity: leftProgress, scale: iconScale }}
+                      className="absolute left-1/2 top-1/2 h-16 w-16 -translate-x-1/2 -translate-y-1/2 drop-shadow-[0_8px_24px_rgba(0,0,0,0.45)] pointer-events-none"
+                      draggable={false}
+                    />
+                    <motion.img
+                      src="/images/icons/yes.png"
+                      alt=""
+                      style={{ opacity: rightProgress, scale: iconScale }}
+                      className="absolute left-1/2 top-1/2 h-16 w-16 -translate-x-1/2 -translate-y-1/2 drop-shadow-[0_8px_24px_rgba(0,0,0,0.45)] pointer-events-none"
+                      draggable={false}
+                    />
+
+                    {/* Bottom controls */}
+                    <div className="absolute bottom-5 inset-x-6 flex items-center justify-between">
+                      <button
+                        onClick={(e) => { e.stopPropagation(); triggerSwipe('left'); }}
+                        className="w-14 h-14 rounded-full border-2 border-white/40 bg-black/35 backdrop-blur-sm flex items-center justify-center shadow-[0_10px_30px_rgba(0,0,0,0.5)]"
+                        aria-label="No"
+                      >
+                        <img src="/images/icons/no.png" alt="" className="w-6 h-6" draggable={false} />
+                      </button>
+                      <button
+                        onClick={(e) => { e.stopPropagation(); triggerSwipe('right'); }}
+                        className="w-14 h-14 rounded-full border-2 border-white/40 bg-black/35 backdrop-blur-sm flex items-center justify-center shadow-[0_10px_30px_rgba(0,0,0,0.5)]"
+                        aria-label="Yes"
+                      >
+                        <img src="/images/icons/yes.png" alt="" className="w-6 h-6" draggable={false} />
+                      </button>
+                    </div>
+                  </motion.div>
+                )}
               </div>
             </div>
           ) : (
@@ -358,7 +332,6 @@ export default function QuizSection() {
           )}
           </div>
         </div>
-      </LayoutGroup>
     </section>
   );
 }
