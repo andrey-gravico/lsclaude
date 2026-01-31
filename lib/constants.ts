@@ -442,11 +442,13 @@ export const NAV_ITEMS = [
 
 // ТИНДЕР-СТИЛЬ ТЕСТ
 export const SWIPE_QUIZ_CARDS = [
-  { id: 1, question: 'Хочу снимать крутые Reels?', image: '/images/test/1qst.webp' },
-  { id: 2, question: 'Снимаю контент каждый день?', image: '/images/test/2qst.webp' },
-  { id: 3, question: 'Хочу зарабатывать на съёмке?', image: '/images/test/3qst.webp' },
-  { id: 4, question: 'Свет — моя главная проблема?', image: '/images/test/4qst.webp' },
-  { id: 5, question: 'Готов(а) учиться прямо сейчас?', image: '/images/test/5qst.webp' },
+  { id: 1, question: 'Мне важно, как выглядит картинка, а не просто «абы как»', image: '/images/test/1qst.png' },
+  { id: 2, question: 'Я думаю, что не нужно быть профессионалом, чтобы снимать красиво', image: '/images/test/2qst.png' },
+  { id: 3, question: 'Мне ближе учиться у человека с живым вкусом, а не по шаблонам', image: '/images/test/3qst.png' },
+  { id: 4, question: 'Мне интереснее формат, где можно увидеть, как снимают вживую', image: '/images/test/4qst.png' },
+  { id: 5, question: 'Я хочу не просто результат, а понять, как он получается', image: '/images/test/5qst.png' },
+  { id: 6, question: 'Мне важно почувствовать уверенность в съёмке, а не просто повторить', image: '/images/test/6qst.png' },
+  { id: 7, question: 'Я бы с удовольствием провела 3 недели в таком формате', image: '/images/test/7qst.png' },
 ];
 
 export const SWIPE_QUIZ_RESULTS = {

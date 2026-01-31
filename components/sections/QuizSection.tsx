@@ -20,7 +20,7 @@ function CardFace({ card }: CardFaceProps) {
         className="absolute inset-0 w-full h-full object-cover select-none pointer-events-none"
         draggable={false}
       />
-      <p className="absolute left-6 right-6 top-1/2 -translate-y-1/2 text-white text-2xl font-semibold leading-tight text-center pointer-events-none">
+      <p className="absolute left-6 right-6 top-[70%] -translate-y-1/2 text-white text-2xl font-semibold leading-tight text-center pointer-events-none">
         {card.question}
       </p>
     </>
