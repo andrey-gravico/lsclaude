@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useLayoutEffect, useRef, useState } from 'react';
+import { useCallback, useEffect, useLayoutEffect, useRef, useState, type PointerEvent } from 'react';
 import { motion, useMotionValue, useTransform, animate } from 'framer-motion';
 import Button from '@/components/ui/Button';
 import { SWIPE_QUIZ_CARDS, SWIPE_QUIZ_RESULTS, TELEGRAM_LINK} from '@/lib/constants';
@@ -47,7 +47,7 @@ function ResultCard({ yesCount, onRestart }: ResultCardProps) {
       initial={{ scale: 0.8, opacity: 0 }}
       animate={{ scale: 1, opacity: 1 }}
       transition={{ type: 'spring' as const, stiffness: 200, damping: 20 }}
-      className="w-full h-full bg-background-card rounded-2xl p-4 border border-border shadow-xl flex flex-col items-center justify-start text-center pt-10"
+      className="w-full h-full bg-background-card rounded-[24px] p-4 border border-border shadow-xl flex flex-col items-center justify-start text-center pt-10"
     >
       {result.discount ? (
         <>
@@ -98,6 +98,12 @@ export default function QuizSection() {
   const sectionRef = useRef<HTMLElement>(null);
   const [startAnimKey, setStartAnimKey] = useState(0);
   const [startCardWidth, setStartCardWidth] = useState(0);
+  const pointerStartRef = useRef<{ x: number; y: number } | null>(null);
+  const dragLockRef = useRef<'x' | 'y' | null>(null);
+  const scrollContainerRef = useRef<HTMLElement | null>(null);
+  const scrollOverflowRef = useRef<string | null>(null);
+  const scrollTouchActionRef = useRef<string | null>(null);
+  const scrollWebkitRef = useRef<string | null>(null);
   const totalCards = SWIPE_QUIZ_CARDS.length;
 
   useEffect(() => {
@@ -110,6 +116,95 @@ export default function QuizSection() {
     window.addEventListener('resize', updateWidth);
     return () => window.removeEventListener('resize', updateWidth);
   }, []);
+
+  useEffect(() => {
+    scrollContainerRef.current = document.querySelector('.snap-container') as HTMLElement | null;
+  }, []);
+
+  const lockHorizontal = useCallback(() => {
+    const container = scrollContainerRef.current;
+    if (!container) return;
+    if (scrollOverflowRef.current === null) {
+      scrollOverflowRef.current = container.style.overflowY;
+    }
+    if (scrollTouchActionRef.current === null) {
+      scrollTouchActionRef.current = container.style.touchAction;
+    }
+    if (scrollWebkitRef.current === null) {
+      scrollWebkitRef.current = (container.style as unknown as { webkitOverflowScrolling?: string }).webkitOverflowScrolling ?? '';
+    }
+    container.style.overflowY = 'hidden';
+    container.style.touchAction = 'none';
+    (container.style as unknown as { webkitOverflowScrolling?: string }).webkitOverflowScrolling = 'auto';
+  }, []);
+
+  const unlockHorizontal = useCallback(() => {
+    const container = scrollContainerRef.current;
+    if (container && scrollOverflowRef.current !== null) {
+      container.style.overflowY = scrollOverflowRef.current;
+    }
+    scrollOverflowRef.current = null;
+    if (container && scrollTouchActionRef.current !== null) {
+      container.style.touchAction = scrollTouchActionRef.current;
+    }
+    scrollTouchActionRef.current = null;
+    if (container && scrollWebkitRef.current !== null) {
+      (container.style as unknown as { webkitOverflowScrolling?: string }).webkitOverflowScrolling = scrollWebkitRef.current;
+    }
+    scrollWebkitRef.current = null;
+  }, []);
+
+  useEffect(() => {
+    if (quizStarted && !quizComplete) {
+      lockHorizontal();
+      return;
+    }
+    unlockHorizontal();
+  }, [quizStarted, quizComplete, lockHorizontal, unlockHorizontal]);
+
+  const handlePointerDown = (event: PointerEvent<HTMLDivElement>) => {
+    pointerStartRef.current = { x: event.clientX, y: event.clientY };
+    dragLockRef.current = null;
+    try {
+      event.currentTarget.setPointerCapture(event.pointerId);
+    } catch {}
+  };
+
+  const handlePointerMove = (event: PointerEvent<HTMLDivElement>) => {
+    if (!pointerStartRef.current) return;
+    const dx = event.clientX - pointerStartRef.current.x;
+    const dy = event.clientY - pointerStartRef.current.y;
+    const absX = Math.abs(dx);
+    const absY = Math.abs(dy);
+    const startThreshold = 8;
+    const extraX = 4;
+
+    if (!dragLockRef.current && (absX > startThreshold || absY > startThreshold)) {
+      const rightSwipe = dx > 0;
+      const xBias = rightSwipe ? 0.6 : 1.2;
+      if (absX >= absY * xBias && absX > startThreshold + extraX) {
+        dragLockRef.current = 'x';
+        lockHorizontal();
+      } else if (absY > absX * 1.5) {
+        dragLockRef.current = 'y';
+        if (!quizStarted || quizComplete) {
+          unlockHorizontal();
+        }
+      }
+    }
+
+    if (dragLockRef.current === 'x') {
+      event.preventDefault();
+    }
+  };
+
+  const handlePointerUp = () => {
+    pointerStartRef.current = null;
+    dragLockRef.current = null;
+    if (!quizStarted || quizComplete) {
+      unlockHorizontal();
+    }
+  };
 
   useEffect(() => {
     const node = sectionRef.current;
@@ -129,15 +224,16 @@ export default function QuizSection() {
   }, [quizStarted]);
 
   const swipeX = useMotionValue(0);
-  const swipeThreshold = startCardWidth ? startCardWidth * 0.45 : 160;
-  const swipeProgress = useTransform(swipeX, (value) => Math.min(Math.abs(value) / swipeThreshold, 1));
+  const swipeThreshold = startCardWidth ? startCardWidth * 0.4 : 160;
+  const visualThreshold = startCardWidth ? startCardWidth * 0.9 : 320;
+  const swipeProgress = useTransform(swipeX, (value) => Math.min(Math.abs(value) / visualThreshold, 1));
   const leftProgress = useTransform(swipeX, (value) => (value < 0 ? Math.min(-value / swipeThreshold, 1) : 0));
   const rightProgress = useTransform(swipeX, (value) => (value > 0 ? Math.min(value / swipeThreshold, 1) : 0));
-  const nextScale = useTransform(swipeProgress, [0, 1], [0.8, 1]);
+  const nextScale = useTransform(swipeProgress, [0, 1], [0.93, 1]);
   const nextOpacity = useTransform(swipeProgress, [0, 1], [0, 1]);
-  const nextBrightness = useTransform(swipeProgress, (value) => `brightness(${0.65 + 0.35 * value})`);
-  const leftGradientHeight = useTransform(leftProgress, [0, 1], ['10%', '33%']);
-  const rightGradientHeight = useTransform(rightProgress, [0, 1], ['10%', '33%']);
+  const nextBrightness = useTransform(swipeProgress, (value) => `brightness(${0.75 + 0.25 * value})`);
+  const leftGradientHeight = useTransform(leftProgress, [0, 1], ['15%', '33%']);
+  const rightGradientHeight = useTransform(rightProgress, [0, 1], ['15%', '33%']);
   const iconScale = useTransform(swipeProgress, [0, 1], [0.9, 1]);
 
   useLayoutEffect(() => {
@@ -180,6 +276,13 @@ export default function QuizSection() {
     setQuizStarted(false);
   };
 
+  const handleExitQuiz = () => {
+    setCards([...SWIPE_QUIZ_CARDS]);
+    setYesCount(0);
+    setQuizComplete(false);
+    setQuizStarted(false);
+  };
+
   const handleStart = () => {
     setQuizStarted(true);
   };
@@ -201,28 +304,30 @@ export default function QuizSection() {
           <div className="flex-1 flex flex-col relative">
             {!quizStarted ? (
             /* Start Swipe Card */
-            <div className="flex-1 flex flex-col items-center justify-center px-3 pb-[calc(env(safe-area-inset-bottom,0)+84px)]">
+            <div className="flex-1 flex flex-col items-center justify-center pb-[calc(env(safe-area-inset-bottom,0)+84px)]">
               {/* 98% keeps breathing room from header and bottom nav */}
-              <div className="relative w-[98%] h-[calc(100dvh-140px)] min-h-[70vh]">
+              <div className="relative w-full h-[calc(100dvh-140px)] min-h-[70vh]">
                 {/* Stack silhouettes (shadow only) */}
-                <div className="absolute -inset-6 rounded-[32px] bg-black/35 blur-[18px]" />
-                <div className="absolute inset-0 translate-x-1 translate-y-2 scale-[0.98] rounded-[24px] bg-black/25 shadow-[0_18px_50px_rgba(0,0,0,0.6)]" />
-                <div className="absolute inset-0 translate-x-2 translate-y-4 scale-[0.96] rounded-[24px] bg-black/30 shadow-[0_22px_60px_rgba(0,0,0,0.7)]" />
+                <div className="absolute -inset-4 rounded-[32px] bg-transparent blur-[14px]" />
+                <div className="absolute inset-0 scale-[0.985] rounded-[24px]  shadow-[0_10px_28px_rgba(245,196,180,0.05)]" />
 
                 <motion.div
                   ref={startCardRef}
                   key={startAnimKey}
                   // Fade-in on section entry + paused drift (left-center-pause-right-center-pause).
-                  initial={{ opacity: 0 }}
-                  animate={{ opacity: 1, x: [0, -7, 0, 0, 7, 0, 0] }}
+                  initial={false}
+                  animate={{ x: [0, -7, 0, 0, 7, 0, 0] }}
                   transition={{
-                    opacity: { duration: 1.2, ease: 'easeOut' },
                     x: { duration: 6, repeat: Infinity, ease: 'easeInOut', times: [0, 0.2, 0.4, 0.55, 0.75, 0.9, 1] },
                   }}
                   drag="x"
                   dragConstraints={{ left: 0, right: 0 }}
                   dragElastic={0.6}
                   dragMomentum={false}
+                  onPointerDown={handlePointerDown}
+                  onPointerMove={handlePointerMove}
+                  onPointerUp={handlePointerUp}
+                  onPointerCancel={handlePointerUp}
                   onDragEnd={(_, info) => {
                     if (Math.abs(info.offset.x) >= startSwipeThreshold) {
                       handleStart();
@@ -230,7 +335,8 @@ export default function QuizSection() {
                   }}
                   whileDrag={{ scale: 0.99 }}
                   whileTap={{ scale: 1.02 }} // Touch feedback (slight lift)
-                  className="relative z-10 w-full h-full rounded-[24px] overflow-hidden shadow-[0_20px_70px_rgba(0,0,0,0.9),0_0_0_1px_rgba(255,255,255,0.04)]"
+                  style={{ touchAction: 'pan-y' }}
+                  className="relative z-10 w-full h-full rounded-[24px] overflow-hidden shadow-[0_10px_26px_rgba(245,196,180,0.025),0_6px_18px_rgba(0,0,0,0.3)]"
                 >
                   <img
                     src="/images/test/quizhero.png"
@@ -243,8 +349,23 @@ export default function QuizSection() {
             </div>
           ) : !quizComplete ? (
             /* Quiz Cards */
-            <div className="flex-1 flex flex-col overflow-hidden">
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              transition={{ duration: 2, ease: 'easeOut' }}
+              className="flex-1 flex flex-col overflow-hidden"
+            >
               <div className="relative w-[98%] h-[calc(100dvh-140px)] min-h-[70vh] mx-auto flex-none">
+                {/* Exit button */}
+                <button
+                  onClick={handleExitQuiz}
+                  className="absolute top-5 left-6 z-50 w-10 h-10 rounded-full border border-white/40 bg-black/30 backdrop-blur-sm flex items-center justify-center"
+                  aria-label="Выйти"
+                >
+                  <svg className="w-4 h-4 text-white/90" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+                    <path d="M15 18l-6-6 6-6" />
+                  </svg>
+                </button>
                 {/* Card counter */}
                 {cards.length > 0 && (
                   <div className="absolute top-2 right-2 sm:top-3 sm:right-3 z-50 pointer-events-none text-white/90 text-xs sm:text-sm font-medium bg-black/40 backdrop-blur-sm px-2 py-1 rounded-full">
@@ -257,7 +378,7 @@ export default function QuizSection() {
                   <motion.div
                     key={cards[1].id}
                     style={{ opacity: nextOpacity, scale: nextScale, filter: nextBrightness }}
-                    className="absolute inset-0 rounded-[24px] overflow-hidden shadow-[0_12px_40px_rgba(0,0,0,0.45)]"
+                    className="absolute inset-0 rounded-[24px] overflow-hidden shadow-[0_10px_28px_rgba(0,0,0,0.35)]"
                   >
                     <CardFace card={cards[1]} />
                   </motion.div>
@@ -266,11 +387,15 @@ export default function QuizSection() {
                 {cards[0] && (
                   <motion.div
                     key={cards[0].id}
-                    style={{ x: swipeX }}
+                    style={{ x: swipeX, touchAction: quizStarted && !quizComplete ? 'none' : 'pan-y' }}
                     drag="x"
                     dragConstraints={{ left: 0, right: 0 }}
                     dragElastic={1}
                     dragMomentum={false}
+                    onPointerDown={handlePointerDown}
+                    onPointerMove={handlePointerMove}
+                    onPointerUp={handlePointerUp}
+                    onPointerCancel={handlePointerUp}
                     onDragEnd={(_, info) => {
                       if (Math.abs(info.offset.x) >= swipeThreshold) {
                         triggerSwipe(info.offset.x > 0 ? 'right' : 'left');
@@ -278,7 +403,7 @@ export default function QuizSection() {
                         animate(swipeX, 0, { type: 'spring', stiffness: 520, damping: 32 });
                       }
                     }}
-                    className="absolute inset-0 rounded-[24px] overflow-hidden shadow-[0_20px_70px_rgba(0,0,0,0.9),0_0_0_1px_rgba(255,255,255,0.04)] bg-black cursor-grab active:cursor-grabbing"
+                    className="absolute inset-0 rounded-[24px] overflow-hidden shadow-[0_16px_40px_rgba(0,0,0,0.45),0_0_0_1px_rgba(255,255,255,0.04)] bg-black cursor-grab active:cursor-grabbing"
                     whileDrag={{ cursor: 'grabbing' }}
                   >
                     <CardFace card={cards[0]} />
@@ -286,11 +411,11 @@ export default function QuizSection() {
                     {/* Directional gradients (intensity follows drag) */}
                     <motion.div
                       style={{ height: leftGradientHeight, opacity: leftProgress }}
-                      className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-[#fd9290] to-transparent pointer-events-none"
+                      className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-[#fb6562] to-transparent pointer-events-none"
                     />
                     <motion.div
                       style={{ height: rightGradientHeight, opacity: rightProgress }}
-                      className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-[#d1e1c2] to-transparent pointer-events-none"
+                      className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-[#98d95c] to-transparent pointer-events-none"
                     />
 
                     {/* Center drag icons */}
@@ -329,7 +454,7 @@ export default function QuizSection() {
                   </motion.div>
                 )}
               </div>
-            </div>
+            </motion.div>
           ) : (
             /* Result */
             <div className="flex-1 flex flex-col overflow-hidden">
