@@ -3,7 +3,8 @@
 import { useCallback, useEffect, useLayoutEffect, useRef, useState, type PointerEvent } from 'react';
 import { motion, useMotionValue, useTransform, animate } from 'framer-motion';
 import Button from '@/components/ui/Button';
-import { SWIPE_QUIZ_CARDS, SWIPE_QUIZ_RESULTS, TELEGRAM_LINK} from '@/lib/constants';
+import Modal from '@/components/ui/Modal';
+import { SWIPE_QUIZ_CARDS, TELEGRAM_LINK } from '@/lib/constants';
 
 
 // Card face content used by top and next cards.
@@ -20,7 +21,7 @@ function CardFace({ card }: CardFaceProps) {
         className="absolute inset-0 w-full h-full object-cover select-none pointer-events-none"
         draggable={false}
       />
-      <p className="absolute left-6 right-6 top-[70%] -translate-y-1/2 text-white text-2xl font-semibold leading-tight text-center pointer-events-none">
+      <p className="absolute left-6 right-6 top-[78%] -translate-y-1/2 text-white text-2xl font-semibold leading-tight text-center pointer-events-none">
         {card.question}
       </p>
     </>
@@ -28,64 +29,268 @@ function CardFace({ card }: CardFaceProps) {
 }
 
 // Result Card Component
-interface ResultCardProps {
-  yesCount: number;
-  onRestart: () => void;
-}
+function GlitterExplosion() {
+  const canvasRef = useRef<HTMLCanvasElement>(null);
 
-function ResultCard({ yesCount, onRestart }: ResultCardProps) {
-  const getResult = () => {
-    if (yesCount <= 1) return SWIPE_QUIZ_RESULTS.low;
-    if (yesCount <= 3) return SWIPE_QUIZ_RESULTS.medium;
-    return SWIPE_QUIZ_RESULTS.high;
-  };
+  useEffect(() => {
+    let raf = 0;
+    const canvas = canvasRef.current;
+    if (!canvas) return;
+    const ctx = canvas.getContext('2d');
+    if (!ctx) return;
 
-  const result = getResult();
+    const setup = () => {
+      const dpr = window.devicePixelRatio || 1;
+      const rect = canvas.getBoundingClientRect();
+      if (rect.width === 0 || rect.height === 0) {
+        raf = requestAnimationFrame(setup);
+        return;
+      }
+      canvas.width = rect.width * dpr;
+      canvas.height = rect.height * dpr;
+      ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+
+      const origin = { x: rect.width / 2, y: rect.height * 0.32 };
+      const colors = ['#f5c4b4', '#ffd7b0', '#fff2e6'];
+      const dust = Array.from({ length: 1100 }).map(() => ({
+        x: origin.x,
+        y: origin.y,
+        vx: (Math.random() - 0.5) * 6,
+        vy: -Math.random() * 5 - 1,
+        size: Math.random() * 0.4 + 0.15,
+        life: Math.random() * 3.4 + 3.2,
+        color: colors[Math.floor(Math.random() * colors.length)],
+        twinkle: Math.random() * Math.PI * 2,
+      }));
+      const sparkles = Array.from({ length: 160 }).map(() => ({
+        x: origin.x,
+        y: origin.y,
+        vx: (Math.random() - 0.5) * 10,
+        vy: -Math.random() * 7 - 2,
+        size: Math.random() * 0.9 + 0.45,
+        life: Math.random() * 2.4 + 2.4,
+        color: colors[Math.floor(Math.random() * colors.length)],
+        rotation: Math.random() * Math.PI,
+        vr: (Math.random() - 0.5) * 0.5,
+      }));
+      const haze = Array.from({ length: 360 }).map(() => ({
+        x: origin.x,
+        y: origin.y,
+        vx: (Math.random() - 0.5) * 3,
+        vy: -Math.random() * 2 - 0.5,
+        size: Math.random() * 0.35 + 0.12,
+        life: Math.random() * 4.6 + 4.2,
+        color: colors[Math.floor(Math.random() * colors.length)],
+      }));
+
+      let startTime = performance.now();
+      const gravity = 0.1;
+      const drag = 0.988;
+
+      const render = (now: number) => {
+        const t = (now - startTime) / 1000;
+        ctx.clearRect(0, 0, rect.width, rect.height);
+        ctx.globalCompositeOperation = 'lighter';
+
+        let alive = 0;
+        haze.forEach((p) => {
+          p.vy += gravity * 0.6;
+          p.vx *= drag;
+          p.vy *= drag;
+          p.x += p.vx;
+          p.y += p.vy;
+          p.life -= 0.006;
+
+          if (p.life <= 0) return;
+          alive += 1;
+
+          const alpha = Math.max(0, Math.min(1, p.life / 7));
+          ctx.save();
+          ctx.translate(p.x, p.y);
+          ctx.globalAlpha = alpha * 0.35;
+          ctx.fillStyle = p.color;
+          ctx.beginPath();
+          ctx.ellipse(0, 0, p.size, p.size * 0.8, 0, 0, Math.PI * 2);
+          ctx.fill();
+          ctx.restore();
+        });
+
+        dust.forEach((p) => {
+          p.vy += gravity;
+          p.vx *= drag;
+          p.vy *= drag;
+          p.x += p.vx;
+          p.y += p.vy;
+          p.life -= 0.012;
+
+          if (p.life <= 0) return;
+          alive += 1;
+
+          const shimmer = 0.55 + 0.45 * Math.sin(t * 4 + p.twinkle);
+          const alpha = Math.max(0, Math.min(1, p.life / 3.4)) * shimmer;
+          ctx.save();
+          ctx.translate(p.x, p.y);
+          ctx.globalAlpha = alpha;
+          ctx.fillStyle = p.color;
+          ctx.beginPath();
+          ctx.ellipse(0, 0, p.size, p.size * 0.7, 0, 0, Math.PI * 2);
+          ctx.fill();
+          ctx.restore();
+        });
+
+        sparkles.forEach((p) => {
+          p.vy += gravity * 0.9;
+          p.vx *= drag;
+          p.vy *= drag;
+          p.x += p.vx;
+          p.y += p.vy;
+          p.rotation += p.vr;
+          p.life -= 0.016;
+
+          if (p.life <= 0) return;
+          alive += 1;
+
+          const alpha = Math.max(0, Math.min(1, p.life / 2.8));
+          ctx.save();
+          ctx.translate(p.x, p.y);
+          ctx.rotate(p.rotation);
+          ctx.globalAlpha = alpha;
+          ctx.fillStyle = p.color;
+          ctx.beginPath();
+          ctx.ellipse(0, 0, p.size, p.size * 0.4, p.rotation, 0, Math.PI * 2);
+          ctx.fill();
+          ctx.restore();
+        });
+
+        if (alive > 0) {
+          requestAnimationFrame(render);
+        }
+      };
+
+      requestAnimationFrame(render);
+    };
+
+    setup();
+    return () => cancelAnimationFrame(raf);
+  }, []);
 
   return (
-    <motion.div
-      initial={{ scale: 0.8, opacity: 0 }}
-      animate={{ scale: 1, opacity: 1 }}
-      transition={{ type: 'spring' as const, stiffness: 200, damping: 20 }}
-      className="w-full h-full bg-background-card rounded-[24px] p-4 border border-border shadow-xl flex flex-col items-center justify-start text-center pt-10"
-    >
-      {result.discount ? (
-        <>
-          <div className="w-14 h-14 mb-2 rounded-full bg-accent/20 flex items-center justify-center">
-            <span className="text-2xl">🎉</span>
-          </div>
-          <h3 className="text-xl font-bold text-text-primary mb-1">{result.title}</h3>
-          <p className="text-text-secondary text-xs mb-2 pb-5">{result.description}</p>
-          <div className="bg-accent/10 border border-accent rounded-xl p-2 mb-3 w-full max-w-[160px]">
-            <p className="text-xs text-text-secondary">Твоя скидка:</p>
-            <p className="text-xl font-bold text-accent">{result.discount}</p>
-          </div>
-          <Button
-            fullWidth
-            onClick={() => window.open(TELEGRAM_LINK, '_blank')}
-            className="max-w-[220px]"
+    <canvas
+      ref={canvasRef}
+      className="absolute inset-0 w-full h-full pointer-events-none z-30 mix-blend-screen"
+    />
+  );
+}
+
+interface ResultCardProps {
+  yesCount: number;
+  timerText: string;
+  onCTA: () => void;
+  onRestart: () => void;
+  onReplay: () => void;
+  animKey: number;
+}
+
+function ResultCard({ yesCount, timerText, onCTA, onRestart, onReplay, animKey }: ResultCardProps) {
+  const isHigh = yesCount === 7;
+  const isMid = yesCount >= 3 && yesCount <= 6;
+  const resultText = isHigh
+    ? 'Тебе 100% будет комфортно на этом курсе'
+    : isMid
+      ? 'Этот формат тебе действительно откликается!'
+      : 'Тебе важны спокойный темп и понятная подача. Именно так выстроен этот курс';
+  const discount = isHigh ? '1000 ₽' : isMid ? '1000 ₽' : '1500 ₽';
+  const [showHint, setShowHint] = useState(false);
+
+  return (
+    <div className="relative w-full h-full [perspective:1200px] [transform-style:preserve-3d]">
+      <motion.div
+        key={animKey}
+        initial={{ scale: 0.7, opacity: 0 }}
+        animate={{ scale: [0.7, 1, 1.05, 1], opacity: 1 }}
+        transition={{
+          scale: { duration: 2.3, times: [0, 0.78, 0.9, 1], ease: 'easeOut' },
+          opacity: { duration: 0.3 },
+        }}
+        style={{ transformStyle: 'preserve-3d', transformOrigin: 'center center', willChange: 'transform' }}
+        className="relative w-full h-full"
+      >
+        <GlitterExplosion key={`glitter-${animKey}`} />
+
+        <motion.div
+          initial={{ rotateY: 0 }}
+          animate={{ rotateY: 1080 }}
+          transition={{ duration: 2.1, ease: 'easeOut' }}
+          style={{ transformStyle: 'preserve-3d', willChange: 'transform' }}
+          className="absolute inset-0 rounded-[24px] shadow-xl"
+        >
+          {/* Front face */}
+          <div
+            className="absolute inset-0 rounded-[24px] bg-background-card border border-border p-5 flex flex-col items-center justify-start text-center pt-9"
+            style={{ backfaceVisibility: 'hidden', WebkitBackfaceVisibility: 'hidden', transformStyle: 'preserve-3d', transform: 'translateZ(4px)' }}
           >
-            Зафиксировать скидку
-          </Button>
-        </>
-      ) : (
-        <>
-          <div className="w-14 h-14 mb-2 rounded-full bg-yellow-500/20 flex items-center justify-center">
-            <span className="text-2xl">🤔</span>
+          <p className="text-lg font-semibold text-text-primary leading-snug">{resultText}</p>
+
+          <div className="mt-6 w-full max-w-[260px]">
+            <button
+              type="button"
+              onClick={() => setShowHint((prev) => !prev)}
+              className="w-full rounded-2xl border border-accent/30 bg-accent/10 px-4 py-3 text-left"
+            >
+              <div className="flex items-center justify-between">
+                <span className="text-xs text-text-secondary">Твоя скидка</span>
+                <span className="text-xs text-text-secondary">{timerText}</span>
+              </div>
+              <div className="mt-1 flex items-center justify-between">
+                <span className="text-2xl font-bold text-accent">{discount}</span>
+                {isHigh && (
+                  <span className="text-[10px] px-2 py-1 rounded-full border border-accent/40 text-accent">
+                    Приоритет
+                  </span>
+                )}
+              </div>
+              {showHint && (
+                <div className="mt-2 text-[11px] text-text-secondary">
+                  Скринь скидку и отправляй мне для фиксации
+                </div>
+              )}
+            </button>
           </div>
-          <h3 className="text-lg font-bold text-text-primary mb-1">{result.title}</h3>
-          <p className="text-text-secondary text-xs mb-3 pb-10">{result.description}</p>
-          <Button
-            variant="outline"
-            fullWidth
+
+          <button
+            onClick={onCTA}
+            className="mt-6 w-full max-w-[260px] rounded-2xl bg-[#27A7E7] text-white py-3 flex items-center justify-center gap-2 shadow-[0_10px_24px_rgba(39,167,231,0.35)]"
+          >
+            <img src="/images/icons/review.png" alt="" className="w-5 h-5 invert" draggable={false} />
+            Забронировать место
+          </button>
+
+          <button
             onClick={onRestart}
-            className="max-w-[220px]"
+            className="mt-3 text-xs text-text-secondary"
           >
             Пройти ещё раз
-          </Button>
-        </>
-      )}
-    </motion.div>
+          </button>
+
+          <button
+            onClick={onReplay}
+            className="mt-2 text-[10px] text-text-muted"
+          >
+            Повторить анимацию
+          </button>
+        </div>
+
+        {/* Back face (card back) */}
+        <div
+          className="absolute inset-0 rounded-[24px] bg-background-card border border-border"
+          style={{ transform: 'rotateY(180deg) translateZ(4px)', backfaceVisibility: 'hidden', WebkitBackfaceVisibility: 'hidden', transformStyle: 'preserve-3d' }}
+        >
+          <div className="absolute inset-6 rounded-[18px] border border-white/15" />
+          <div className="absolute inset-10 rounded-[14px] border border-white/10" />
+        </div>
+        </motion.div>
+      </motion.div>
+    </div>
   );
 }
 
@@ -94,6 +299,10 @@ export default function QuizSection() {
   const [yesCount, setYesCount] = useState(0);
   const [quizStarted, setQuizStarted] = useState(false);
   const [quizComplete, setQuizComplete] = useState(false);
+  const [isConfirmOpen, setIsConfirmOpen] = useState(false);
+  const [resultAnimKey, setResultAnimKey] = useState(0);
+  const [discountStart, setDiscountStart] = useState<number | null>(null);
+  const [timerText, setTimerText] = useState('72:00:00');
   const startCardRef = useRef<HTMLDivElement>(null);
   const sectionRef = useRef<HTMLElement>(null);
   const [startAnimKey, setStartAnimKey] = useState(0);
@@ -120,6 +329,39 @@ export default function QuizSection() {
   useEffect(() => {
     scrollContainerRef.current = document.querySelector('.snap-container') as HTMLElement | null;
   }, []);
+
+  useEffect(() => {
+    if (!quizComplete) return;
+    setResultAnimKey((prev) => prev + 1);
+    const stored = window.sessionStorage.getItem('quiz_discount_start');
+    const start = stored ? Number(stored) : Date.now();
+    if (!stored) {
+      window.sessionStorage.setItem('quiz_discount_start', String(start));
+    }
+    setDiscountStart(start);
+  }, [quizComplete]);
+
+  useEffect(() => {
+    if (!discountStart) return;
+    const durationMs = 72 * 60 * 60 * 1000;
+    const tick = () => {
+      const remaining = discountStart + durationMs - Date.now();
+      if (remaining <= 0) {
+        setTimerText('00:00:00');
+        return;
+      }
+      const totalSec = Math.floor(remaining / 1000);
+      const h = Math.floor(totalSec / 3600);
+      const m = Math.floor((totalSec % 3600) / 60);
+      const s = totalSec % 60;
+      setTimerText(
+        `${String(h).padStart(2, '0')}:${String(m).padStart(2, '0')}:${String(s).padStart(2, '0')}`
+      );
+    };
+    tick();
+    const timer = window.setInterval(tick, 1000);
+    return () => window.clearInterval(timer);
+  }, [discountStart]);
 
   const lockHorizontal = useCallback(() => {
     const container = scrollContainerRef.current;
@@ -270,6 +512,7 @@ export default function QuizSection() {
   };
 
   const handleRestart = () => {
+    window.sessionStorage.removeItem('quiz_discount_start');
     setCards([...SWIPE_QUIZ_CARDS]);
     setYesCount(0);
     setQuizComplete(false);
@@ -277,10 +520,16 @@ export default function QuizSection() {
   };
 
   const handleExitQuiz = () => {
+    window.sessionStorage.removeItem('quiz_discount_start');
     setCards([...SWIPE_QUIZ_CARDS]);
     setYesCount(0);
     setQuizComplete(false);
     setQuizStarted(false);
+  };
+
+  const handleCTAConfirm = () => {
+    window.open(TELEGRAM_LINK, '_blank');
+    setIsConfirmOpen(false);
   };
 
   const handleStart = () => {
@@ -459,12 +708,46 @@ export default function QuizSection() {
             /* Result */
             <div className="flex-1 flex flex-col overflow-hidden">
               <div className="relative w-[98%] h-[calc(100dvh-140px)] min-h-[70vh] mx-auto flex-none p-3">
-                <ResultCard yesCount={yesCount} onRestart={handleRestart} />
+                <ResultCard
+                  yesCount={yesCount}
+                  timerText={timerText}
+                  onCTA={() => setIsConfirmOpen(true)}
+                  onRestart={handleRestart}
+                  animKey={resultAnimKey}
+                  onReplay={() => setResultAnimKey((prev) => prev + 1)}
+                />
               </div>
             </div>
           )}
           </div>
         </div>
+        <Modal
+          isOpen={isConfirmOpen}
+          onClose={() => setIsConfirmOpen(false)}
+          title="Перейти в Telegram?"
+        >
+          <div className="p-5">
+            <p className="text-sm text-text-secondary mb-5">
+              Мы откроем Telegram, чтобы забронировать место.
+            </p>
+            <div className="flex gap-3">
+              <Button
+                fullWidth
+                onClick={handleCTAConfirm}
+                className="bg-[#27A7E7] hover:bg-[#1f96d6] text-white"
+              >
+                Открыть Telegram
+              </Button>
+              <Button
+                variant="outline"
+                fullWidth
+                onClick={() => setIsConfirmOpen(false)}
+              >
+                Отмена
+              </Button>
+            </div>
+          </div>
+        </Modal>
     </section>
   );
 }
