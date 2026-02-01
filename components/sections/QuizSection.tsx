@@ -95,14 +95,32 @@ function GlitterExplosion() {
         life: 1.8 + Math.random() * 0.7,
       });
 
-      const dust = Array.from({ length: 2800 }).map(makeDust);
-      const sparkles = Array.from({ length: 520 }).map(makeSparkle);
+      type Particle = {
+        x: number;
+        y: number;
+        vx: number;
+        vy: number;
+        size: number;
+        color: string;
+        rotation: number;
+        vr: number;
+        burst: boolean;
+        life: number;
+      };
 
-      let startTime = performance.now();
+      const dust: Particle[] = Array.from({ length: 2800 }).map(makeDust);
+      const sparkles: Particle[] = Array.from({ length: 520 }).map(makeSparkle);
+
+      const startTime = performance.now();
       const gravity = 0.32;
       const drag = 0.993;
 
-      const drawParticle = (context, p, alpha, rotate) => {
+      const drawParticle = (
+        context: CanvasRenderingContext2D,
+        p: Particle,
+        alpha: number,
+        rotate: boolean
+      ) => {
         context.save();
         context.translate(p.x, p.y);
         if (rotate) context.rotate(p.rotation);
@@ -114,7 +132,7 @@ function GlitterExplosion() {
         context.restore();
       };
 
-      const update = (p, t, isSparkle) => {
+      const update = (p: Particle, t: number, isSparkle: boolean) => {
         if (!p.burst && t >= 0.55) {
           p.burst = true;
           const angle = Math.random() * Math.PI * 2;
@@ -142,7 +160,7 @@ function GlitterExplosion() {
         return 1;
       };
 
-      const render = (now) => {
+      const render = (now: number) => {
         const t = (now - startTime) / 1000;
         ctx.clearRect(0, 0, rect.width, rect.height);
         ctx.globalCompositeOperation = 'lighter';
@@ -352,6 +370,7 @@ export default function QuizSection() {
       window.sessionStorage.setItem('quiz_discount_start', String(start));
     }
     setDiscountStart(start);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [quizComplete]);
 
   useEffect(() => {
@@ -522,14 +541,6 @@ export default function QuizSection() {
     window.setTimeout(() => {
       handleSwipe(direction);
     }, 380);
-  };
-
-  const handleRestart = () => {
-    window.sessionStorage.removeItem('quiz_discount_start');
-    setCards([...SWIPE_QUIZ_CARDS]);
-    setYesCount(0);
-    setQuizComplete(false);
-    setQuizStarted(false);
   };
 
   const handleExitQuiz = () => {
@@ -730,9 +741,7 @@ export default function QuizSection() {
                   yesCount={yesCount}
                   timerText={timerText}
                   onCTA={() => setIsConfirmOpen(true)}
-                  onRestart={handleRestart}
                   animKey={resultAnimKey}
-                  onReplay={() => setResultAnimKey((prev) => prev + 1)}
                 />
               </div>
             </div>
