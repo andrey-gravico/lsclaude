@@ -172,12 +172,10 @@ interface ResultCardProps {
   yesCount: number;
   timerText: string;
   onCTA: () => void;
-  onRestart: () => void;
-  onReplay: () => void;
   animKey: number;
 }
 
-function ResultCard({ yesCount, timerText, onCTA, onRestart, onReplay, animKey }: ResultCardProps) {
+function ResultCard({ yesCount, timerText, onCTA, animKey }: ResultCardProps) {
   const isHigh = yesCount === 7;
   const isMid = yesCount >= 3 && yesCount <= 6;
   const resultText = isHigh
@@ -186,7 +184,7 @@ function ResultCard({ yesCount, timerText, onCTA, onRestart, onReplay, animKey }
       ? 'Этот формат тебе действительно откликается!'
       : 'Тебе важны спокойный темп и понятная подача. Именно так выстроен этот курс';
   const discount = isHigh ? '1000 ₽' : isMid ? '1000 ₽' : '1500 ₽';
-  const [showHint, setShowHint] = useState(false);
+  const [showHint] = useState(true);
 
   return (
     // Result card wrapper + 3D context.
@@ -212,64 +210,50 @@ function ResultCard({ yesCount, timerText, onCTA, onRestart, onReplay, animKey }
         >
           {/* Front face (content) */}
           <div
-            className="absolute inset-0 rounded-[24px] bg-background-card border border-border p-5 flex flex-col items-center justify-start text-center pt-9"
+            className="absolute inset-0 rounded-[24px] bg-background-card border border-border p-5 flex flex-col items-center text-center"
             style={{ backfaceVisibility: 'hidden', WebkitBackfaceVisibility: 'hidden', transformStyle: 'preserve-3d', transform: 'translateZ(4px)' }}
           >
-          {/* Result text */}
-          <p className="text-lg font-semibold text-text-primary leading-snug">{resultText}</p>
+            {/* Result text */}
+            <div className="pt-10">
+              <p className="text-lg font-semibold text-text-primary leading-snug">{resultText}</p>
+            </div>
 
-          <div className="mt-6 w-full max-w-[260px]">
-            {/* Discount block + timer + hint */}
-            <button
-              type="button"
-              onClick={() => setShowHint((prev) => !prev)}
-              className="w-full rounded-2xl border border-accent/30 bg-accent/10 px-4 py-3 text-left"
-            >
-              <div className="flex items-center justify-between">
-                <span className="text-xs text-text-secondary">Твоя скидка</span>
-                <span className="text-xs text-text-secondary">{timerText}</span>
-              </div>
-              <div className="mt-1 flex items-center justify-between">
-                <span className="text-2xl font-bold text-accent">{discount}</span>
-                {isHigh && (
-                  <span className="text-[10px] px-2 py-1 rounded-full border border-accent/40 text-accent">
-                    Приоритет
-                  </span>
+            {/* Discount block centered (doesn't push CTA) */}
+            <div className="absolute left-1/2 top-[40%] w-full max-w-[260px] -translate-x-1/2 -translate-y-1/2">
+              {/* Discount block + timer + hint */}
+              <div className="w-full rounded-2xl border border-accent/30 bg-accent/10 px-4 py-3 text-left">
+                <div className="flex items-center justify-between">
+                  <span className="text-xs text-text-secondary">Твой подарок</span>
+                  <span className="text-xs text-text-secondary">{timerText}</span>
+                </div>
+                <div className="mt-1 flex items-center justify-between">
+                  <span className="text-4xl font-bold text-accent">{discount}</span>
+                  {isHigh && (
+                    <span className="text-[10px] px-2 py-1 rounded-full border border-accent/40 text-accent">
+                      Приоритет
+                    </span>
+                  )}
+                </div>
+                {showHint && (
+                  <div className="mt-2 text-[11px] text-text-secondary">
+                    Делай скрин скидки и отправляй боту для фиксации
+                  </div>
                 )}
               </div>
-              {showHint && (
-                <div className="mt-2 text-[11px] text-text-secondary">
-                  Скринь скидку и отправляй мне для фиксации
-                </div>
-              )}
-            </button>
+            </div>
+
+            {/* CTA button pinned to bottom */}
+            <div className="absolute bottom-7 left-1/2 w-full max-w-[260px] -translate-x-1/2">
+              <button
+                onClick={onCTA}
+                className="w-full rounded-2xl bg-[#27A7E7] text-white py-3 flex items-center justify-center gap-2 shadow-[0_10px_24px_rgba(39,167,231,0.35)]"
+              >
+                <img src="/images/icons/review.png" alt="" className="w-6 h-6" draggable={false} />
+                Зафиксировать подарок
+              </button>
+
+            </div>
           </div>
-
-          {/* CTA button */}
-          <button
-            onClick={onCTA}
-            className="mt-6 w-full max-w-[260px] rounded-2xl bg-[#27A7E7] text-white py-3 flex items-center justify-center gap-2 shadow-[0_10px_24px_rgba(39,167,231,0.35)]"
-          >
-            <img src="/images/icons/review.png" alt="" className="w-5 h-5 invert" draggable={false} />
-            Забронировать место
-          </button>
-
-          {/* Restart button */}
-          <button
-            onClick={onRestart}
-            className="mt-3 text-xs text-text-secondary"
-          >
-            Пройти ещё раз
-          </button>
-
-          {/* Dev-only replay button */}
-          <button
-            onClick={onReplay}
-            className="mt-2 text-[10px] text-text-muted"
-          >
-            Повторить анимацию
-          </button>
-        </div>
 
         {/* Back face (card back) */}
         <div
