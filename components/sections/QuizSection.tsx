@@ -42,7 +42,7 @@ function GlitterExplosion() {
     const setup = () => {
       const dpr = window.devicePixelRatio || 1;
       const rect = canvas.getBoundingClientRect();
-      if (rect.width === 0 || rect.height === 0) {
+      if (rect.width == 0 || rect.height == 0) {
         raf = requestAnimationFrame(setup);
         return;
       }
@@ -50,116 +50,107 @@ function GlitterExplosion() {
       canvas.height = rect.height * dpr;
       ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
 
-      const origin = { x: rect.width / 2, y: rect.height * 0.32 };
+      const origin = { x: rect.width / 2, y: rect.height * 0.72 };
+      const burstY = rect.height * 0.2;
       const colors = ['#f5c4b4', '#ffd7b0', '#fff2e6'];
-      const dust = Array.from({ length: 1100 }).map(() => ({
-        x: origin.x,
-        y: origin.y,
-        vx: (Math.random() - 0.5) * 6,
-        vy: -Math.random() * 5 - 1,
-        size: Math.random() * 0.4 + 0.15,
-        life: Math.random() * 3.4 + 3.2,
-        color: colors[Math.floor(Math.random() * colors.length)],
-        twinkle: Math.random() * Math.PI * 2,
-      }));
-      const sparkles = Array.from({ length: 160 }).map(() => ({
-        x: origin.x,
-        y: origin.y,
-        vx: (Math.random() - 0.5) * 10,
-        vy: -Math.random() * 7 - 2,
-        size: Math.random() * 0.9 + 0.45,
-        life: Math.random() * 2.4 + 2.4,
+
+      const makeDust = () => ({
+        x: origin.x + (Math.random() - 0.5) * 3,
+        y: origin.y + (Math.random() - 0.5) * 3,
+        vx: (Math.random() - 0.5) * 0.4,
+        vy: -(12 + Math.random() * 6),
+        size: Math.random() * 0.35 + 0.12,
         color: colors[Math.floor(Math.random() * colors.length)],
         rotation: Math.random() * Math.PI,
-        vr: (Math.random() - 0.5) * 0.5,
-      }));
-      const haze = Array.from({ length: 360 }).map(() => ({
-        x: origin.x,
-        y: origin.y,
-        vx: (Math.random() - 0.5) * 3,
-        vy: -Math.random() * 2 - 0.5,
-        size: Math.random() * 0.35 + 0.12,
-        life: Math.random() * 4.6 + 4.2,
+        vr: (Math.random() - 0.5) * 0.2,
+        burst: false,
+        stuck: false,
+        stuckAt: 0,
+      });
+
+      const makeSparkle = () => ({
+        x: origin.x + (Math.random() - 0.5) * 2.5,
+        y: origin.y + (Math.random() - 0.5) * 2.5,
+        vx: (Math.random() - 0.5) * 0.6,
+        vy: -(13 + Math.random() * 6),
+        size: Math.random() * 0.55 + 0.2,
         color: colors[Math.floor(Math.random() * colors.length)],
-      }));
+        rotation: Math.random() * Math.PI,
+        vr: (Math.random() - 0.5) * 0.4,
+        burst: false,
+        stuck: false,
+        stuckAt: 0,
+      });
+
+      const dust = Array.from({ length: 2800 }).map(makeDust);
+      const sparkles = Array.from({ length: 520 }).map(makeSparkle);
 
       let startTime = performance.now();
-      const gravity = 0.1;
-      const drag = 0.988;
+      const gravity = 0.16;
+      const drag = 0.993;
 
-      const render = (now: number) => {
+      const drawParticle = (p, alpha) => {
+        ctx.save();
+        ctx.translate(p.x, p.y);
+        ctx.rotate(p.rotation);
+        ctx.globalAlpha = alpha;
+        ctx.fillStyle = p.color;
+        ctx.beginPath();
+        ctx.ellipse(0, 0, p.size, p.size * 0.7, p.rotation, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.restore();
+      };
+
+      const update = (p, t, isSparkle) => {
+        if (p.stuck) {
+          const dt = t - p.stuckAt;
+          const fade = Math.max(0, 1 - dt / 1.5);
+          if (fade <= 0) return 0;
+          const alpha = (isSparkle ? 0.75 : 0.5) * fade;
+          drawParticle(p, alpha);
+          return 1;
+        }
+
+        if (!p.burst && p.y <= burstY) {
+          p.burst = true;
+          const angle = Math.random() * Math.PI * 2;
+          const speed = (isSparkle ? 7 : 5.5) + Math.random() * (isSparkle ? 6 : 5);
+          p.vx = Math.cos(angle) * speed;
+          p.vy = Math.sin(angle) * speed;
+        }
+
+        // Slow down after burst to make the fall softer.
+        const postBurst = p.burst ? 0.5 : 1;
+        p.vy += gravity * postBurst;
+        p.vx *= drag;
+        p.vy *= drag;
+        p.x += p.vx * postBurst;
+        p.y += p.vy * postBurst;
+        p.rotation += p.vr;
+
+        // Random stick anywhere when moving slowly.
+        if (p.burst && Math.abs(p.vx) + Math.abs(p.vy) < 0.35 && Math.random() < 0.015) {
+          p.stuck = true;
+          p.stuckAt = t;
+        }
+
+        const shimmer = 0.6 + 0.4 * Math.sin(t * 5 + p.rotation * 1.3);
+        const alpha = (isSparkle ? 0.95 : 0.6) * shimmer;
+        drawParticle(p, alpha);
+        return 1;
+      };
+
+      const render = (now) => {
         const t = (now - startTime) / 1000;
         ctx.clearRect(0, 0, rect.width, rect.height);
         ctx.globalCompositeOperation = 'lighter';
 
         let alive = 0;
-        haze.forEach((p) => {
-          p.vy += gravity * 0.6;
-          p.vx *= drag;
-          p.vy *= drag;
-          p.x += p.vx;
-          p.y += p.vy;
-          p.life -= 0.006;
-
-          if (p.life <= 0) return;
-          alive += 1;
-
-          const alpha = Math.max(0, Math.min(1, p.life / 7));
-          ctx.save();
-          ctx.translate(p.x, p.y);
-          ctx.globalAlpha = alpha * 0.35;
-          ctx.fillStyle = p.color;
-          ctx.beginPath();
-          ctx.ellipse(0, 0, p.size, p.size * 0.8, 0, 0, Math.PI * 2);
-          ctx.fill();
-          ctx.restore();
-        });
-
         dust.forEach((p) => {
-          p.vy += gravity;
-          p.vx *= drag;
-          p.vy *= drag;
-          p.x += p.vx;
-          p.y += p.vy;
-          p.life -= 0.012;
-
-          if (p.life <= 0) return;
-          alive += 1;
-
-          const shimmer = 0.55 + 0.45 * Math.sin(t * 4 + p.twinkle);
-          const alpha = Math.max(0, Math.min(1, p.life / 3.4)) * shimmer;
-          ctx.save();
-          ctx.translate(p.x, p.y);
-          ctx.globalAlpha = alpha;
-          ctx.fillStyle = p.color;
-          ctx.beginPath();
-          ctx.ellipse(0, 0, p.size, p.size * 0.7, 0, 0, Math.PI * 2);
-          ctx.fill();
-          ctx.restore();
+          alive += update(p, t, false);
         });
-
         sparkles.forEach((p) => {
-          p.vy += gravity * 0.9;
-          p.vx *= drag;
-          p.vy *= drag;
-          p.x += p.vx;
-          p.y += p.vy;
-          p.rotation += p.vr;
-          p.life -= 0.016;
-
-          if (p.life <= 0) return;
-          alive += 1;
-
-          const alpha = Math.max(0, Math.min(1, p.life / 2.8));
-          ctx.save();
-          ctx.translate(p.x, p.y);
-          ctx.rotate(p.rotation);
-          ctx.globalAlpha = alpha;
-          ctx.fillStyle = p.color;
-          ctx.beginPath();
-          ctx.ellipse(0, 0, p.size, p.size * 0.4, p.rotation, 0, Math.PI * 2);
-          ctx.fill();
-          ctx.restore();
+          alive += update(p, t, true);
         });
 
         if (alive > 0) {
@@ -177,7 +168,7 @@ function GlitterExplosion() {
   return (
     <canvas
       ref={canvasRef}
-      className="absolute inset-0 w-full h-full pointer-events-none z-30 mix-blend-screen"
+      className="absolute inset-0 w-full h-full pointer-events-none z-40 mix-blend-screen"
     />
   );
 }
@@ -215,8 +206,6 @@ function ResultCard({ yesCount, timerText, onCTA, onRestart, onReplay, animKey }
         style={{ transformStyle: 'preserve-3d', transformOrigin: 'center center', willChange: 'transform' }}
         className="relative w-full h-full"
       >
-        <GlitterExplosion key={`glitter-${animKey}`} />
-
         <motion.div
           initial={{ rotateY: 0 }}
           animate={{ rotateY: 1080 }}
@@ -708,6 +697,7 @@ export default function QuizSection() {
             /* Result */
             <div className="flex-1 flex flex-col overflow-hidden">
               <div className="relative w-[98%] h-[calc(100dvh-140px)] min-h-[70vh] mx-auto flex-none p-3">
+                <GlitterExplosion key={`glitter-${resultAnimKey}`} />
                 <ResultCard
                   yesCount={yesCount}
                   timerText={timerText}
