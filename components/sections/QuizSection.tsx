@@ -40,7 +40,7 @@ function GlitterExplosion() {
     if (!ctx) return;
 
     const setup = () => {
-      const dpr = window.devicePixelRatio || 1;
+      const dpr = Math.min(window.devicePixelRatio || 1, 1.25);
       const rect = canvas.getBoundingClientRect();
       if (rect.width == 0 || rect.height == 0) {
         raf = requestAnimationFrame(setup);
@@ -51,12 +51,11 @@ function GlitterExplosion() {
       ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
 
       const origin = { x: rect.width / 2, y: rect.height * 0.72 };
-      const burstY = rect.height * 0.2;
       const colors = ['#f5c4b4', '#ffd7b0', '#fff2e6'];
 
       const makeDust = () => ({
-        x: origin.x + (Math.random() - 0.5) * 3,
-        y: origin.y + (Math.random() - 0.5) * 3,
+        x: origin.x + (Math.random() - 0.5) * 1.2,
+        y: origin.y + (Math.random() - 0.5) * 1.2,
         vx: (Math.random() - 0.5) * 0.4,
         vy: -(12 + Math.random() * 6),
         size: Math.random() * 0.35 + 0.12,
@@ -64,13 +63,12 @@ function GlitterExplosion() {
         rotation: Math.random() * Math.PI,
         vr: (Math.random() - 0.5) * 0.2,
         burst: false,
-        stuck: false,
-        stuckAt: 0,
+        life: 1.8 + Math.random() * 0.7,
       });
 
       const makeSparkle = () => ({
-        x: origin.x + (Math.random() - 0.5) * 2.5,
-        y: origin.y + (Math.random() - 0.5) * 2.5,
+        x: origin.x + (Math.random() - 0.5) * 1.0,
+        y: origin.y + (Math.random() - 0.5) * 1.0,
         vx: (Math.random() - 0.5) * 0.6,
         vy: -(13 + Math.random() * 6),
         size: Math.random() * 0.55 + 0.2,
@@ -78,40 +76,30 @@ function GlitterExplosion() {
         rotation: Math.random() * Math.PI,
         vr: (Math.random() - 0.5) * 0.4,
         burst: false,
-        stuck: false,
-        stuckAt: 0,
+        life: 1.8 + Math.random() * 0.7,
       });
 
       const dust = Array.from({ length: 2800 }).map(makeDust);
       const sparkles = Array.from({ length: 520 }).map(makeSparkle);
 
       let startTime = performance.now();
-      const gravity = 0.16;
+      const gravity = 0.32;
       const drag = 0.993;
 
-      const drawParticle = (p, alpha) => {
-        ctx.save();
-        ctx.translate(p.x, p.y);
-        ctx.rotate(p.rotation);
-        ctx.globalAlpha = alpha;
-        ctx.fillStyle = p.color;
-        ctx.beginPath();
-        ctx.ellipse(0, 0, p.size, p.size * 0.7, p.rotation, 0, Math.PI * 2);
-        ctx.fill();
-        ctx.restore();
+      const drawParticle = (context, p, alpha, rotate) => {
+        context.save();
+        context.translate(p.x, p.y);
+        if (rotate) context.rotate(p.rotation);
+        context.globalAlpha = alpha;
+        context.fillStyle = p.color;
+        context.beginPath();
+        context.ellipse(0, 0, p.size, p.size * 0.7, rotate ? p.rotation : 0, 0, Math.PI * 2);
+        context.fill();
+        context.restore();
       };
 
       const update = (p, t, isSparkle) => {
-        if (p.stuck) {
-          const dt = t - p.stuckAt;
-          const fade = Math.max(0, 1 - dt / 1.5);
-          if (fade <= 0) return 0;
-          const alpha = (isSparkle ? 0.75 : 0.5) * fade;
-          drawParticle(p, alpha);
-          return 1;
-        }
-
-        if (!p.burst && p.y <= burstY) {
+        if (!p.burst && t >= 0.55) {
           p.burst = true;
           const angle = Math.random() * Math.PI * 2;
           const speed = (isSparkle ? 7 : 5.5) + Math.random() * (isSparkle ? 6 : 5);
@@ -119,24 +107,22 @@ function GlitterExplosion() {
           p.vy = Math.sin(angle) * speed;
         }
 
-        // Slow down after burst to make the fall softer.
-        const postBurst = p.burst ? 0.5 : 1;
+        const postBurst = p.burst ? 1 : 1.1;
         p.vy += gravity * postBurst;
         p.vx *= drag;
         p.vy *= drag;
         p.x += p.vx * postBurst;
         p.y += p.vy * postBurst;
         p.rotation += p.vr;
+        p.life -= 0.018;
 
-        // Random stick anywhere when moving slowly.
-        if (p.burst && Math.abs(p.vx) + Math.abs(p.vy) < 0.35 && Math.random() < 0.015) {
-          p.stuck = true;
-          p.stuckAt = t;
+        if (p.life <= 0 || p.y > rect.height + 40 || p.x < -40 || p.x > rect.width + 40) {
+          return 0;
         }
 
         const shimmer = 0.6 + 0.4 * Math.sin(t * 5 + p.rotation * 1.3);
         const alpha = (isSparkle ? 0.95 : 0.6) * shimmer;
-        drawParticle(p, alpha);
+        drawParticle(ctx, p, alpha, isSparkle);
         return 1;
       };
 
@@ -145,15 +131,15 @@ function GlitterExplosion() {
         ctx.clearRect(0, 0, rect.width, rect.height);
         ctx.globalCompositeOperation = 'lighter';
 
-        let alive = 0;
+        let aliveMoving = 0;
         dust.forEach((p) => {
-          alive += update(p, t, false);
+          aliveMoving += update(p, t, false);
         });
         sparkles.forEach((p) => {
-          alive += update(p, t, true);
+          aliveMoving += update(p, t, true);
         });
 
-        if (alive > 0) {
+        if (aliveMoving > 0) {
           requestAnimationFrame(render);
         }
       };
@@ -162,7 +148,16 @@ function GlitterExplosion() {
     };
 
     setup();
-    return () => cancelAnimationFrame(raf);
+
+    const onVisibility = () => {
+      if (document.hidden) {
+        cancelAnimationFrame(raf);
+      } else {
+        setup();
+      }
+    };
+    document.addEventListener('visibilitychange', onVisibility);
+    return () => { cancelAnimationFrame(raf); document.removeEventListener('visibilitychange', onVisibility); };
   }, []);
 
   return (
@@ -194,6 +189,7 @@ function ResultCard({ yesCount, timerText, onCTA, onRestart, onReplay, animKey }
   const [showHint, setShowHint] = useState(false);
 
   return (
+    // Result card wrapper + 3D context.
     <div className="relative w-full h-full [perspective:1200px] [transform-style:preserve-3d]">
       <motion.div
         key={animKey}
@@ -206,6 +202,7 @@ function ResultCard({ yesCount, timerText, onCTA, onRestart, onReplay, animKey }
         style={{ transformStyle: 'preserve-3d', transformOrigin: 'center center', willChange: 'transform' }}
         className="relative w-full h-full"
       >
+        {/* 3D spin layer (front/back faces). */}
         <motion.div
           initial={{ rotateY: 0 }}
           animate={{ rotateY: 1080 }}
@@ -213,14 +210,16 @@ function ResultCard({ yesCount, timerText, onCTA, onRestart, onReplay, animKey }
           style={{ transformStyle: 'preserve-3d', willChange: 'transform' }}
           className="absolute inset-0 rounded-[24px] shadow-xl"
         >
-          {/* Front face */}
+          {/* Front face (content) */}
           <div
             className="absolute inset-0 rounded-[24px] bg-background-card border border-border p-5 flex flex-col items-center justify-start text-center pt-9"
             style={{ backfaceVisibility: 'hidden', WebkitBackfaceVisibility: 'hidden', transformStyle: 'preserve-3d', transform: 'translateZ(4px)' }}
           >
+          {/* Result text */}
           <p className="text-lg font-semibold text-text-primary leading-snug">{resultText}</p>
 
           <div className="mt-6 w-full max-w-[260px]">
+            {/* Discount block + timer + hint */}
             <button
               type="button"
               onClick={() => setShowHint((prev) => !prev)}
@@ -246,6 +245,7 @@ function ResultCard({ yesCount, timerText, onCTA, onRestart, onReplay, animKey }
             </button>
           </div>
 
+          {/* CTA button */}
           <button
             onClick={onCTA}
             className="mt-6 w-full max-w-[260px] rounded-2xl bg-[#27A7E7] text-white py-3 flex items-center justify-center gap-2 shadow-[0_10px_24px_rgba(39,167,231,0.35)]"
@@ -254,6 +254,7 @@ function ResultCard({ yesCount, timerText, onCTA, onRestart, onReplay, animKey }
             Забронировать место
           </button>
 
+          {/* Restart button */}
           <button
             onClick={onRestart}
             className="mt-3 text-xs text-text-secondary"
@@ -261,6 +262,7 @@ function ResultCard({ yesCount, timerText, onCTA, onRestart, onReplay, animKey }
             Пройти ещё раз
           </button>
 
+          {/* Dev-only replay button */}
           <button
             onClick={onReplay}
             className="mt-2 text-[10px] text-text-muted"
