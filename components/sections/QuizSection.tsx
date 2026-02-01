@@ -6,6 +6,22 @@ import Button from '@/components/ui/Button';
 import Modal from '@/components/ui/Modal';
 import { SWIPE_QUIZ_CARDS, TELEGRAM_LINK } from '@/lib/constants';
 
+// Border slider animation for the gift block frame.
+const borderSweepKeyframes = `
+@property --a {
+  syntax: '<angle>';
+  inherits: false;
+  initial-value: 0deg;
+}
+@keyframes borderSweep {
+  0% { --a: 0deg; opacity: 0.15; }
+  20% { opacity: 1; }
+  50% { opacity: 0.35; }
+  80% { opacity: 1; }
+  100% { --a: 360deg; opacity: 0.15; }
+}
+`;
+
 
 // Card face content used by top and next cards.
 interface CardFaceProps {
@@ -221,7 +237,21 @@ function ResultCard({ yesCount, timerText, onCTA, animKey }: ResultCardProps) {
             {/* Discount block centered (doesn't push CTA) */}
             <div className="absolute left-1/2 top-[40%] w-full max-w-[260px] -translate-x-1/2 -translate-y-1/2">
               {/* Discount block + timer + hint */}
-              <div className="w-full rounded-2xl border border-accent/30 bg-accent/10 px-4 py-3 text-left">
+              <div className="relative w-full rounded-2xl p-[1px]">
+                {/* moving slider along the frame */}
+                <div
+                  className="pointer-events-none absolute inset-0 rounded-2xl p-[1px] animate-[borderSweep_5s_linear_infinite]"
+                  style={{
+                    '--a': '0deg',
+                    background:
+                      'conic-gradient(from var(--a), rgba(255,255,255,0) 0deg, rgba(245,196,180,0.95) 16deg, rgba(255,255,255,0.2) 26deg, rgba(255,255,255,0) 48deg, rgba(255,255,255,0) 180deg, rgba(245,196,180,0.95) 196deg, rgba(255,255,255,0.2) 206deg, rgba(255,255,255,0) 228deg)',
+                    WebkitMask:
+                      'linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0)',
+                    WebkitMaskComposite: 'xor',
+                    maskComposite: 'exclude',
+                  } as React.CSSProperties}
+                />
+                <div className="rounded-2xl bg-accent/10 px-4 py-3 text-left">
                 <div className="flex items-center justify-between">
                   <span className="text-xs text-text-secondary">Твой подарок</span>
                   <span className="text-xs text-text-secondary">{timerText}</span>
@@ -239,6 +269,7 @@ function ResultCard({ yesCount, timerText, onCTA, animKey }: ResultCardProps) {
                     Делай скрин скидки и отправляй боту для фиксации
                   </div>
                 )}
+                </div>
               </div>
             </div>
 
@@ -270,6 +301,13 @@ function ResultCard({ yesCount, timerText, onCTA, animKey }: ResultCardProps) {
 }
 
 export default function QuizSection() {
+  useEffect(() => {
+    if (document.getElementById('border-sweep-style')) return;
+    const style = document.createElement('style');
+    style.id = 'border-sweep-style';
+    style.textContent = borderSweepKeyframes;
+    document.head.appendChild(style);
+  }, []);
   const [cards, setCards] = useState([...SWIPE_QUIZ_CARDS]);
   const [yesCount, setYesCount] = useState(0);
   const [quizStarted, setQuizStarted] = useState(false);
@@ -516,7 +554,11 @@ export default function QuizSection() {
   const startSwipeThreshold = startCardWidth ? startCardWidth * 0.35 : 120;
 
   return (
-    <section id="quiz" ref={sectionRef} className="snap-section section-padding flex flex-col">
+    <section
+      id="quiz"
+      ref={sectionRef}
+      className="snap-section section-padding flex flex-col"
+    >
       <div className="flex-1 flex flex-col pt-4">
           <div className="px-0 pt-2 pb-3">
             <p className="text-[18px] sm:text-[20px] text-center font-semibold text-text-primary font-montserrat">
