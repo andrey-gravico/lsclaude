@@ -1,13 +1,11 @@
-'use client';
+﻿'use client';
 
 import { useCallback, useEffect, useMemo, useRef, useState, type PointerEvent } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import Image from 'next/image';
-import Button from '@/components/ui/Button';
 import Modal from '@/components/ui/Modal';
-import { ABOUT_TEACHER, IMAGES, PORTFOLIO_CATEGORIES, TELEGRAM_LINK } from '@/lib/constants';
-import type { PortfolioCategory, PortfolioHighlight, PortfolioHighlightItem } from '@/lib/constants';
-import { scrollToSection } from '@/lib/utils';
+import { PORTFOLIO_CASES, TELEGRAM_LINK } from '@/lib/constants';
+import type { PortfolioCase, PortfolioHighlightItem } from '@/lib/constants';
 
 const IMAGE_DURATION_MS = 5000;
 const HOLD_DELAY_MS = 280;
@@ -17,10 +15,7 @@ function clamp(value: number, min: number, max: number) {
 }
 
 export default function PortfolioSection() {
-  const [isAboutOpen, setIsAboutOpen] = useState(false);
-
-  const [activeCategory, setActiveCategory] = useState<PortfolioCategory | null>(null);
-  const [activeHighlight, setActiveHighlight] = useState<PortfolioHighlight | null>(null);
+  const [activeCase, setActiveCase] = useState<PortfolioCase | null>(null);
   const [activeItemIndex, setActiveItemIndex] = useState(0);
   const [progress, setProgress] = useState(0);
   const [isPaused, setIsPaused] = useState(false);
@@ -31,24 +26,27 @@ export default function PortfolioSection() {
   const wasPlaying = useRef(false);
   const pointerStart = useRef<{ x: number; y: number } | null>(null);
   const hasMoved = useRef(false);
+  const swipeDirection = useRef<'prev' | 'next' | null>(null);
   const lastPointerTimestampMs = useRef(0);
   const currentTimestampMs = useRef(0);
 
   const imageAccumulatedMs = useRef(0);
   const imageStartMs = useRef(0);
-  const activeHighlightRef = useRef<PortfolioHighlight | null>(null);
+  const activeCaseRef = useRef<PortfolioCase | null>(null);
   const activeItemIndexRef = useRef(0);
 
-  const isViewerOpen = Boolean(activeCategory && activeHighlight);
+  const isViewerOpen = Boolean(activeCase);
+
+  const portfolioCases = useMemo(() => PORTFOLIO_CASES, []);
 
   const activeItem: PortfolioHighlightItem | null = useMemo(() => {
-    if (!activeHighlight) return null;
-    return activeHighlight.items[activeItemIndex] ?? null;
-  }, [activeHighlight, activeItemIndex]);
+    if (!activeCase) return null;
+    return activeCase.items[activeItemIndex] ?? null;
+  }, [activeCase, activeItemIndex]);
 
   useEffect(() => {
-    activeHighlightRef.current = activeHighlight;
-  }, [activeHighlight]);
+    activeCaseRef.current = activeCase;
+  }, [activeCase]);
 
   useEffect(() => {
     activeItemIndexRef.current = activeItemIndex;
@@ -67,9 +65,8 @@ export default function PortfolioSection() {
     imageStartMs.current = 0;
   }, []);
 
-  const openHighlight = (category: PortfolioCategory, highlight: PortfolioHighlight) => {
-    setActiveCategory(category);
-    setActiveHighlight(highlight);
+  const openCase = (portfolioCase: PortfolioCase) => {
+    setActiveCase(portfolioCase);
     setActiveItemIndex(0);
     resetViewerState();
   };
@@ -91,14 +88,13 @@ export default function PortfolioSection() {
     setIsPaused(false);
     setProgress(0);
     setActiveItemIndex(0);
-    setActiveHighlight(null);
-    setActiveCategory(null);
+    setActiveCase(null);
     imageAccumulatedMs.current = 0;
     imageStartMs.current = 0;
   }, []);
 
   const goNext = useCallback(() => {
-    const highlight = activeHighlightRef.current;
+    const highlight = activeCaseRef.current;
     const index = activeItemIndexRef.current;
     if (!highlight) return;
     if (index >= highlight.items.length - 1) {
@@ -155,7 +151,7 @@ export default function PortfolioSection() {
     let rafId = 0;
     const tick = (timestampMs: number) => {
       currentTimestampMs.current = timestampMs;
-      if (!isViewerOpen || !activeHighlight) return;
+      if (!isViewerOpen || !activeCase) return;
       if (!activeItem) return;
 
       if (activeItem.type === 'image') {
@@ -182,7 +178,7 @@ export default function PortfolioSection() {
 
     rafId = window.requestAnimationFrame(tick);
     return () => window.cancelAnimationFrame(rafId);
-  }, [activeHighlight, activeItem, isPaused, isViewerOpen, activeItemIndex, goNext]);
+  }, [activeCase, activeItem, isPaused, isViewerOpen, activeItemIndex, goNext]);
 
   useEffect(() => {
     if (!isViewerOpen) return;
@@ -205,6 +201,7 @@ export default function PortfolioSection() {
     lastPointerTimestampMs.current = event.timeStamp;
     pointerStart.current = { x: event.clientX, y: event.clientY };
     hasMoved.current = false;
+    swipeDirection.current = null;
 
     const video = videoRef.current;
     wasPlaying.current = Boolean(video && !video.paused);
@@ -235,6 +232,19 @@ export default function PortfolioSection() {
         holdTimeout.current = null;
       }
       closeHighlight();
+      return;
+    }
+
+    if (deltaX > 60 && deltaX > Math.abs(deltaY) && !swipeDirection.current) {
+      swipeDirection.current = event.clientX < pointerStart.current.x ? 'next' : 'prev';
+      hasMoved.current = true;
+      if (holdTimeout.current) {
+        window.clearTimeout(holdTimeout.current);
+        holdTimeout.current = null;
+      }
+      pointerStart.current = null;
+      if (swipeDirection.current === 'next') goNext();
+      else goPrev();
     }
   };
 
@@ -249,8 +259,9 @@ export default function PortfolioSection() {
 
     pointerStart.current = null;
 
-    if (hasMoved.current) {
+    if (hasMoved.current || swipeDirection.current) {
       hasMoved.current = false;
+      swipeDirection.current = null;
       isHolding.current = false;
       return;
     }
@@ -274,6 +285,7 @@ export default function PortfolioSection() {
     }
     pointerStart.current = null;
     hasMoved.current = false;
+    swipeDirection.current = null;
     if (isHolding.current) {
       isHolding.current = false;
       resumePlayback();
@@ -281,151 +293,86 @@ export default function PortfolioSection() {
   };
 
   return (
-    <section id="portfolio" className="snap-section section-padding flex flex-col">
-      {/* === HEADER (копия из ProgramSection) === */}
-      <header className="pt-2 safe-top">
-        <div className="pt-4 pl-3 pr-4 flex items-center justify-between">
-          <a
-            href={TELEGRAM_LINK}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="flex items-center gap-1 text-[8px] md:text-[9px] font-medium text-text-secondary hover:text-accent transition-colors uppercase tracking-wider"
-          >
-            <span className="text-xs">‹</span>
-            @LITTLESVETA
-          </a>
-          <div className="flex items-center gap-1.5">
-            <span className="w-1.5 h-1.5 rounded-full bg-accent" />
-            <span className="text-[8px] md:text-[9px] font-medium text-text-primary uppercase tracking-wider">
-              Курс по мобильной съёмке
-            </span>
-          </div>
-        </div>
-      </header>
-
+    <section
+      id="portfolio"
+      className="snap-section section-padding flex flex-col bg-gradient-to-b from-[#0b0a0a] via-[#0d0c0b] to-[#090808]"
+    >
       <div className="flex-1 flex flex-col">
-        <div className="flex items-center gap-3 px-0 py-3">
-          <button
-            onClick={() => setIsAboutOpen(true)}
-            className="relative w-28 h-28 flex-shrink-0 group"
-            aria-label="Обо мне"
-          >
-            <svg className="absolute inset-0 w-full h-full circular-text" viewBox="0 0 100 100">
-              <defs>
-                <path
-                  id="circlePathPortfolio"
-                  d="M 50,50 m -34,0 a 34,34 0 1,1 68,0 a 34,34 0 1,1 -68,0"
+        <div className="pt-6 px-4">
+          <div className="text-center text-sm font-semibold text-text-primary font-montserrat">
+            Снимай | Монтируй | <span className="slow-shimmer font-bold">Удивляй</span>
+          </div>
+          <h2 className="text-[26px] font-bold text-text-primary font-montserrat mt-2 text-center">Портфолио</h2>
+        </div>
+
+        <div className="mt-4 flex flex-col gap-4 pb-20">
+          {portfolioCases
+            .filter((item) => item.isHero)
+            .map((item) => (
+              <button
+                key={item.id}
+                onClick={() => openCase(item)}
+                className="relative w-[95vw] max-w-[430px] mx-auto aspect-[4/5] max-h-[33vh] rounded-[22px] overflow-hidden shadow-[0_22px_50px_rgba(0,0,0,0.55)] bg-black/40 transition-transform duration-300 ease-out active:translate-y-0.5"
+              >
+                <Image
+                  src={item.coverSrc}
+                  alt={item.title}
+                  fill
+                  className="object-cover"
+                  sizes="80vw"
+                  unoptimized
+                  priority
                 />
-              </defs>
-              <text className="text-[7.0px] fill-text-secondary uppercase tracking-[0.40em]">
-                <textPath href="#circlePathPortfolio">• ОБО МНЕ • ОБО МНЕ • ОБО МНЕ</textPath>
-              </text>
-            </svg>
-            <div className="absolute inset-0 flex items-center justify-center">
-              <div className="w-16 h-16 rounded-full border border-border bg-background-card overflow-hidden group-hover:border-accent transition-all">
-                <img src="/images/ava.png" alt="Avatar" className="w-full h-full object-cover" />
-              </div>
-            </div>
-          </button>
+                <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/10 to-transparent" />
+                <div
+                  className={`absolute left-3 top-3 px-3 py-1 rounded-full text-[10px] font-semibold ${item.badgeClass}`}
+                >
+                  {item.badge}
+                </div>
+                <div className="absolute left-4 right-4 bottom-4 flex items-end justify-between">
+                  <div className="text-left">
+                    <div className="text-[20px] font-semibold text-white">{item.label}</div>
+                    <div className="text-[11px] text-white/65 mt-0.5">{item.subtitle}</div>
+                  </div>
+                  <span className="inline-flex items-center justify-center px-4 py-1.5 rounded-full bg-white/10 text-white text-[12px] border border-white/25 backdrop-blur-sm">
+                    Смотреть
+                  </span>
+                </div>
+              </button>
+            ))}
 
-          <div className="flex-1 flex flex-col gap-1 -mt-6">
-            <p className="text-[13px] font-semibold text-text-primary font-montserrat">
-              Снимай | Монтируй | <span className="slow-shimmer font-bold">Удивляй</span>
-            </p>
-            <h2 className="text-[22px] font-bold text-text-primary font-montserrat">Портфолио</h2>
-            <p className="text-xs text-text-secondary">Мои лучшие кейсы.</p>
-          </div>
-        </div>
-
-        <div className="flex w-full justify-end pb-4 -mt-6">
-          <div className="flex items-center gap-3 px-2">
-            <Button onClick={() => window.open(TELEGRAM_LINK, '_blank')} className="text-xs py-1 px-3 w-auto">
-              Записаться
-            </Button>
-            <Button variant="outline" onClick={() => scrollToSection('faq')} className="text-xs py-1 px-3 w-auto">
-              Ответы на вопросы
-            </Button>
-          </div>
-        </div>
-
-        <div className="border-t border-border px-0 w-screen -mx-4" />
-
-        <div className="flex-1 flex flex-col gap-6 pt-5 pb-24">
-          {PORTFOLIO_CATEGORIES.map((category) => (
-            <div key={category.id} className="flex flex-col gap-3">
-              <h3 className="text-xl font-bold text-text-primary font-montserrat text-center">
-                {category.title}
-              </h3>
-
-              <div className="flex justify-between px-2">
-                {category.highlights.map((highlight) => (
-                  <button
-                    key={highlight.id}
-                    onClick={() => openHighlight(category, highlight)}
-                    className="flex flex-col items-center gap-1 w-16"
+          <div className="w-[95vw] max-w-[430px] mx-auto flex items-start gap-4">
+            {portfolioCases
+              .filter((item) => !item.isHero)
+              .map((item) => (
+                <button
+                  key={item.id}
+                  onClick={() => openCase(item)}
+                  className="relative flex-1 aspect-[4/5] max-h-[30vh] rounded-[18px] overflow-hidden bg-black/40 shadow-[0_18px_38px_rgba(0,0,0,0.45)] transition-transform duration-300 ease-out hover:-translate-y-1 active:translate-y-0.5"
+                >
+                  <Image
+                    src={item.coverSrc}
+                    alt={item.title}
+                    fill
+                    className="object-cover"
+                    sizes="50vw"
+                    unoptimized
+                  />
+                  <div className="absolute inset-0 bg-gradient-to-t from-black/65 via-black/15 to-transparent" />
+                  <div
+                    className={`absolute left-3 top-3 px-3 py-1 rounded-full text-[10px] font-semibold ${item.badgeClass}`}
                   >
-                    <div className="w-16 h-16 rounded-full border border-border bg-background-card overflow-hidden transition-all hover:border-accent">
-                      <Image
-                        src={highlight.coverSrc}
-                        alt={highlight.label}
-                        width={64}
-                        height={64}
-                        className="w-full h-full object-cover"
-                        unoptimized
-                      />
-                    </div>
-                    <span
-                      className="text-[10px] leading-[12px] text-text-secondary text-center w-16"
-                      style={{
-                        display: '-webkit-box',
-                        WebkitLineClamp: 2,
-                        WebkitBoxOrient: 'vertical',
-                        overflow: 'hidden',
-                      }}
-                    >
-                      {highlight.label}
-                    </span>
-                  </button>
-                ))}
-              </div>
-            </div>
-          ))}
+                    {item.badge}
+                  </div>
+                  <div className="absolute left-3 bottom-3 text-[14px] font-semibold text-white">{item.label}</div>
+                </button>
+              ))}
+          </div>
         </div>
       </div>
 
-      <Modal isOpen={isAboutOpen} onClose={() => setIsAboutOpen(false)} title="Обо мне">
-        <div className="p-5">
-          <div className="flex items-center gap-4 mb-4">
-            <div className="relative w-20 h-20 rounded-full overflow-hidden border-2 border-border">
-              <Image src={IMAGES.avatar} alt={ABOUT_TEACHER.name} fill className="object-cover" unoptimized />
-            </div>
-            <div>
-              <h3 className="text-xl font-bold text-text-primary">{ABOUT_TEACHER.name}</h3>
-              <p className="text-sm text-text-secondary">{ABOUT_TEACHER.role}</p>
-            </div>
-          </div>
-
-          <p className="text-text-secondary whitespace-pre-line leading-relaxed text-sm">{ABOUT_TEACHER.description}</p>
-
-          <div className="mt-6 grid grid-cols-3 gap-3">
-            {ABOUT_TEACHER.stats.map((stat) => (
-              <div key={stat.label} className="text-center p-3 rounded-xl bg-background-card border border-border">
-                <p className="text-xl font-bold text-accent">{stat.value}</p>
-                <p className="text-[10px] text-text-secondary mt-1">{stat.label}</p>
-              </div>
-            ))}
-          </div>
-
-          <div className="mt-6">
-            <Button fullWidth onClick={() => window.open(TELEGRAM_LINK, '_blank')}>
-              Написать в Telegram
-            </Button>
-          </div>
-        </div>
-      </Modal>
-
       <Modal isOpen={isViewerOpen} onClose={closeHighlight} fullScreen showCloseButton={false}>
-        {isViewerOpen && activeCategory && activeHighlight && activeItem && (
+        {isViewerOpen && activeCase && activeItem && (
           <div className="relative w-full h-full bg-black">
             <div className="absolute inset-0">
               <AnimatePresence mode="wait">
@@ -465,32 +412,15 @@ export default function PortfolioSection() {
             <div className="absolute top-0 left-0 right-0 h-28 bg-gradient-to-b from-black/70 via-black/25 to-transparent z-20 pointer-events-none" />
 
             <div className="absolute top-0 left-0 right-0 z-40 pt-2 safe-top px-3 pointer-events-none">
-              <div className="flex items-center gap-2">
-                <div className="flex-1 flex items-center gap-1">
-                  {activeHighlight.items.map((_, index) => {
-                    const barProgress = index < activeItemIndex ? 1 : index === activeItemIndex ? progress : 0;
-                    return (
-                      <div key={index} className="flex-1 h-[2px] bg-white/25 overflow-hidden rounded-full">
-                        <div className="h-full bg-white" style={{ width: `${clamp(barProgress, 0, 1) * 100}%` }} />
-                      </div>
-                    );
-                  })}
-                </div>
-
-                <button
-                  onClick={closeHighlight}
-                  className="w-9 h-9 rounded-full bg-black/35 backdrop-blur-sm border border-white/15 flex items-center justify-center pointer-events-auto"
-                  aria-label="Закрыть"
-                >
-                  <svg className="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-                  </svg>
-                </button>
-              </div>
-
-              <div className="mt-3 flex items-center justify-between">
-                <div className="text-sm font-semibold text-white">{activeCategory.title}</div>
-                <div className="text-sm text-white/85">{activeHighlight.label}</div>
+              <div className="flex items-center gap-1">
+                {activeCase.items.map((_, index) => {
+                  const barProgress = index < activeItemIndex ? 1 : index === activeItemIndex ? progress : 0;
+                  return (
+                    <div key={index} className="flex-1 h-[2px] bg-white/25 overflow-hidden rounded-full">
+                      <div className="h-full bg-white" style={{ width: `${clamp(barProgress, 0, 1) * 100}%` }} />
+                    </div>
+                  );
+                })}
               </div>
             </div>
 

@@ -229,6 +229,72 @@ export type PortfolioCategory = {
   highlights: PortfolioHighlight[];
 };
 
+export type PortfolioCase = {
+  id: string;
+  label: string;
+  title: string;
+  subtitle: string;
+  coverSrc: string;
+  badge: string;
+  badgeClass: string;
+  items: PortfolioHighlightItem[];
+  isHero?: boolean;
+};
+
+export const PORTFOLIO_CASES: PortfolioCase[] = [
+  {
+    id: 'outdoor',
+    label: 'Outdoor',
+    title: 'Outdoor съёмки',
+    subtitle: 'Естественный свет · движение · атмосфера',
+    coverSrc: '/images/program/1-5.png',
+    badge: 'Теплота света',
+    badgeClass: 'bg-accent text-black',
+    isHero: true,
+    items: [
+      { id: 'outdoor-cover', type: 'image', src: '/images/program/1-5.png' },
+      { id: 'outdoor-process', type: 'image', src: '/images/portfolio/story-1.jpg' },
+      { id: 'outdoor-backstage', type: 'image', src: '/images/portfolio/story-2.jpg' },
+      {
+        id: 'outdoor-final',
+        type: 'video',
+        src: '/images/portfolio/story-3.mp4',
+        posterSrc: '/images/portfolio/story-3-poster.jpg',
+      },
+    ],
+  },
+  {
+    id: 'studio',
+    label: 'Студийные',
+    title: 'Студийные съёмки',
+    subtitle: 'Мягкий свет · fashion',
+    coverSrc: '/images/program/2-1.jpg',
+    badge: 'Скин-тон',
+    badgeClass: 'bg-emerald-400 text-black',
+    items: [
+      { id: 'studio-cover', type: 'image', src: '/images/program/2-1.jpg' },
+      { id: 'studio-process', type: 'image', src: '/images/portfolio/story-2.jpg' },
+      { id: 'studio-backstage', type: 'image', src: '/images/portfolio/story-1.jpg' },
+      { id: 'studio-final', type: 'image', src: '/images/portfolio/cover-4.jpg' },
+    ],
+  },
+  {
+    id: 'weddings',
+    label: 'Свадьбы',
+    title: 'Свадьбы',
+    subtitle: 'Эмоции · ритуал · тепло',
+    coverSrc: '/images/program/2-3.jpg',
+    badge: 'Живые кадры',
+    badgeClass: 'bg-rose-400 text-black',
+    items: [
+      { id: 'weddings-cover', type: 'image', src: '/images/program/2-3.jpg' },
+      { id: 'weddings-process', type: 'image', src: '/images/portfolio/cover-5.jpg' },
+      { id: 'weddings-backstage', type: 'image', src: '/images/portfolio/story-2.jpg' },
+      { id: 'weddings-final', type: 'image', src: '/images/portfolio/story-1.jpg' },
+    ],
+  },
+];
+
 const PORTFOLIO_SAMPLE_ITEMS: PortfolioHighlightItem[] = [
   { id: 's1', type: 'image', src: '/images/portfolio/story-1.jpg' },
   { id: 's2', type: 'image', src: '/images/portfolio/story-2.jpg' },
