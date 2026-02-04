@@ -122,6 +122,7 @@ export default function HeroSection() {
       beforeLabel="До"
       afterLabel="После"
       className="h-full"
+      
     />
   </motion.div>
 </div>

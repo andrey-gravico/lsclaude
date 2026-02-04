@@ -80,7 +80,7 @@ export default function BeforeAfterSlider({
     >
       {/* After Image (background) */}
       <div className="absolute inset-0">
-        <Image src={afterImage} alt={afterLabel} fill className="object-cover" priority sizes="(max-width: 768px) 100vw, 50vw" unoptimized />
+        <Image src={afterImage} alt={afterLabel} fill className="object-cover scale-[1.06] object-[center_15%]" priority sizes="(max-width: 768px) 100vw, 50vw" unoptimized />
         <span className="absolute top-4 right-4 px-3 py-1 bg-background/70 text-text-primary text-sm font-medium rounded-full backdrop-blur-sm border border-border">
           {afterLabel}
         </span>
@@ -88,7 +88,7 @@ export default function BeforeAfterSlider({
 
       {/* Before Image (clipped) */}
       <div className="absolute inset-0" style={{ clipPath: `inset(0 ${100 - sliderPosition}% 0 0)` }}>
-        <Image src={beforeImage} alt={beforeLabel} fill className="object-cover" priority sizes="(max-width: 768px) 100vw, 50vw" unoptimized />
+        <Image src={beforeImage} alt={beforeLabel} fill className="object-cover scale-[1.06] object-[center_15%]" priority sizes="(max-width: 768px) 100vw, 50vw" unoptimized />
         <span className="absolute top-4 left-4 px-3 py-1 bg-background/70 text-text-primary text-sm font-medium rounded-full backdrop-blur-sm border border-border">
           {beforeLabel}
         </span>
