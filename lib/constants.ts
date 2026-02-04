@@ -411,19 +411,19 @@ export type VideoReviewItem = {
 };
 // ОТЗЫВЫ ГОЛОС
 export const VOICE_REVIEW_ITEMS: VoiceReviewItem[] = [
-  { id: 'v1', username: 'Olesya.Ivanchenko', avatarSrc: '/images/reviews/ava-1.jpg', audioSrc: SILENT_AUDIO, duration: 4, isNew: true },
-  { id: 'v2', username: 'shish_rekava', avatarSrc: '/images/reviews/ava-2.jpg', audioSrc: SILENT_AUDIO, duration: 12, isNew: false },
-  { id: 'v3', username: 'diana_gros6', avatarSrc: '/images/reviews/ava-3.jpg', audioSrc: SILENT_AUDIO, duration: 9, isNew: false },
-  { id: 'v4', username: 'lebedeva.anna', avatarSrc: '/images/reviews/ava-4.jpg', audioSrc: SILENT_AUDIO, duration: 16, isNew: false },
-  { id: 'v5', username: 'kurzdaq', avatarSrc: '/images/reviews/ava-5.jpg', audioSrc: SILENT_AUDIO, duration: 22, isNew: false },
-  { id: 'v6', username: 'Andrey_andrey', avatarSrc: '/images/reviews/ava-6.jpg', audioSrc: SILENT_AUDIO, duration: 18, isNew: false },
+  { id: 'v1', username: 'Olesya.Ivanchenko', avatarSrc: '/images/reviews/audio/1.png', audioSrc: SILENT_AUDIO, duration: 4, isNew: true },
+  { id: 'v2', username: 'shish_rekava', avatarSrc: '/images/reviews/audio/2.png', audioSrc: SILENT_AUDIO, duration: 12, isNew: false },
+  { id: 'v3', username: 'diana_gros6', avatarSrc: '/images/reviews/audio/3.png', audioSrc: SILENT_AUDIO, duration: 9, isNew: false },
+  { id: 'v4', username: 'lebedeva.anna', avatarSrc: '/images/reviews/audio/4.png', audioSrc: SILENT_AUDIO, duration: 16, isNew: false },
+  { id: 'v5', username: 'kurzdaq', avatarSrc: '/images/reviews/audio/5.png', audioSrc: SILENT_AUDIO, duration: 22, isNew: false },
+  { id: 'v6', username: 'Andrey_andrey', avatarSrc: '/images/reviews/audio/6.png', audioSrc: SILENT_AUDIO, duration: 18, isNew: false },
 ];
 // ОТЗЫВЫ ТЕКСТ
 export const TEXT_REVIEW_ITEMS: TextReviewItem[] = [
   {
     id: 't1',
     username: 'Rihana_artemova',
-    avatarSrc: '/images/reviews/ava-1.jpg',
+    avatarSrc: '/images/reviews/text/7.png',
     preview: 'Света, это лучший курс, который я проходила — всё по делу!',
     text: 'Света, это лучший курс, который я проходила — всё по делу! Уже на второй день я сняла ролик, который реально выглядит как «до/после». Спасибо за структуру, практику и поддержку.',
     isNew: true,
@@ -431,7 +431,7 @@ export const TEXT_REVIEW_ITEMS: TextReviewItem[] = [
   {
     id: 't2',
     username: 'Quinn_castle',
-    avatarSrc: '/images/reviews/ava-3.jpg',
+    avatarSrc: '/images/reviews/text/8.png',
     preview: 'Я наконец-то понял свет и кадр. Результат — огонь.',
     text: 'Я наконец-то понял свет и кадр. Результат — огонь. Больше всего зашли задания и разборы: сразу видишь, что исправить и куда расти. Рекомендую всем, кто снимает на телефон.',
     isNew: false,
@@ -439,7 +439,7 @@ export const TEXT_REVIEW_ITEMS: TextReviewItem[] = [
   {
     id: 't3',
     username: 'Musaeva.Anji',
-    avatarSrc: '/images/reviews/ava-6.jpg',
+    avatarSrc: '/images/reviews/text/9.png',
     preview: 'С монтажом стало сильно проще — появились приёмы и ритм.',
     text: 'С монтажом стало сильно проще — появились приёмы и ритм. Теперь понимаю, как держать внимание и делать переходы уместно. Отдельный кайф — что всё можно повторить сразу.',
     isNew: false,
@@ -450,7 +450,7 @@ export const VIDEO_REVIEW_ITEMS: VideoReviewItem[] = [
   {
     id: 'vv1',
     username: 'Anna.Pavlova',
-    avatarSrc: '/images/reviews/ava-5.jpg',
+    avatarSrc: '/images/reviews/video/10.png',
     videoSrc: '/images/reviews/video-1.mp4',
     posterSrc: '/images/reviews/video-1-poster.jpg',
     isNew: false,
@@ -458,7 +458,7 @@ export const VIDEO_REVIEW_ITEMS: VideoReviewItem[] = [
   {
     id: 'vv2',
     username: 'Inga.Inga',
-    avatarSrc: '/images/reviews/ava-4.jpg',
+    avatarSrc: '/images/reviews/video/11.png',
     videoSrc: '/images/reviews/video-2.mp4',
     posterSrc: '/images/reviews/video-2-poster.jpg',
     isNew: false,
