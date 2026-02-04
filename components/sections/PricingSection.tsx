@@ -150,7 +150,6 @@ export function PricingCarousel() {
                 boxShadow: '0 24px 70px rgba(245,196,180,0.18)',
               }}
               transition={{ duration: 0.48, ease: easeOutCubic }}
-              whileTapTransition={{ duration: 0.28, ease: easeOutCubic }}
             >
               <div
                 className={cn(
