@@ -263,6 +263,9 @@ html, body {
 .safe-top {
   padding-top: env(safe-area-inset-top, 0);
 }
+.safe-right {
+  padding-right: env(safe-area-inset-right, 0);
+}
 
 /* === RIPPLE ЭФФЕКТ === */
 .ripple-container {
@@ -330,6 +333,16 @@ html, body {
   -webkit-backdrop-filter: blur(20px);
   background: #0a0a0a;
   border-top: 0px solid var(--color-border);
+}
+
+/* === RIGHT VERTICAL NAV === */
+.right-nav {
+  backdrop-filter: blur(24px);
+  -webkit-backdrop-filter: blur(24px);
+  background: rgba(18, 18, 18, 0.7);
+  border: 1px solid rgba(255, 255, 255, 0.35);
+  border-right: 0;
+  border-radius: 16px 0 0 16px;
 }
 
 /* === АДАПТИВНЫЕ ОТСТУПЫ ДЛЯ СЕКЦИЙ === */

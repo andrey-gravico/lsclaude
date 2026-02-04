@@ -66,9 +66,9 @@ export default function BottomNav() {
   }, []);
 
   return (
-    <nav className="fixed bottom-0 left-0 right-0 z-40 bottom-nav safe-bottom">
-      <div className="max-w-lg mx-auto px-3 pb-2">
-        <div className="flex items-center justify-around">
+    <nav className="fixed right-0 top-1/2 -translate-y-1/2 z-40 right-nav safe-right">
+      <div className="px-2 py-2">
+        <div className="flex flex-col items-center gap-1">
           {NAV_ITEMS.map((item) => {
             const isActive = activeSection === item.id;
             const itemRipples = ripples.filter((r) => r.itemId === item.id);
