@@ -502,6 +502,7 @@ export const NAV_ITEMS = [
   { id: 'program', label: 'Программа', icon: 'book' },
   { id: 'quiz', label: 'Тест', icon: 'clipboard' },
   { id: 'portfolio', label: 'Портфолио', icon: 'camera' },
+  { id: 'pricing', label: 'Прайс', icon: 'price' },
   { id: 'reviews', label: 'Отзывы', icon: 'star' },
   { id: 'faq', label: 'FAQ', icon: 'help' },
 ];

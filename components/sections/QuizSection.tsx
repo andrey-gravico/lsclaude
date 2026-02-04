@@ -2,8 +2,7 @@
 
 import { useCallback, useEffect, useLayoutEffect, useRef, useState, type PointerEvent } from 'react';
 import { motion, useMotionValue, useTransform, animate } from 'framer-motion';
-import Button from '@/components/ui/Button';
-import Modal from '@/components/ui/Modal';
+import TelegramConfirmModal from '@/components/ui/TelegramConfirmModal';
 import { SWIPE_QUIZ_CARDS, TELEGRAM_LINK } from '@/lib/constants';
 
 // Border slider animation for the gift block frame.
@@ -748,33 +747,11 @@ export default function QuizSection() {
           )}
           </div>
         </div>
-        <Modal
+        <TelegramConfirmModal
           isOpen={isConfirmOpen}
           onClose={() => setIsConfirmOpen(false)}
-          title="Перейти в Telegram?"
-        >
-          <div className="p-5">
-            <p className="text-sm text-text-secondary mb-5">
-              Мы откроем Telegram, чтобы забронировать место.
-            </p>
-            <div className="flex gap-3">
-              <Button
-                fullWidth
-                onClick={handleCTAConfirm}
-                className="bg-[#27A7E7] hover:bg-[#1f96d6] text-white"
-              >
-                Открыть Telegram
-              </Button>
-              <Button
-                variant="outline"
-                fullWidth
-                onClick={() => setIsConfirmOpen(false)}
-              >
-                Отмена
-              </Button>
-            </div>
-          </div>
-        </Modal>
+          onConfirm={handleCTAConfirm}
+        />
     </section>
   );
 }

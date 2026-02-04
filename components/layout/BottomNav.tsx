@@ -13,6 +13,7 @@ const icons: Record<string, string> = {
   camera: '/images/icons/portfolio.png',
   star: '/images/icons/review.png',
   help: '/images/icons/faqq.png',
+  price: '',
 };
 
 export default function BottomNav() {
@@ -106,15 +107,22 @@ export default function BottomNav() {
                   }}
                   transition={{ type: 'spring', stiffness: 400, damping: 20 }}
                 >
-                  <Image
-                    src={icons[item.icon] ?? icons.help}
-                    alt=""
-                    width={20}
-                    height={20}
-                    className="w-5 h-5"
-                    draggable={false}
-                    priority={item.id === 'hero'}
-                  />
+                  {icons[item.icon] ? (
+                    <Image
+                      src={icons[item.icon] ?? icons.help}
+                      alt=""
+                      width={20}
+                      height={20}
+                      className="w-5 h-5"
+                      draggable={false}
+                      priority={item.id === 'hero'}
+                    />
+                  ) : (
+                    <span
+                      className="w-5 h-5 rounded-[4px] border border-white/30"
+                      aria-hidden
+                    />
+                  )}
                 </motion.div>
 
                 <span className={cn('text-[10px] mt-1 transition-colors', isActive ? 'font-medium' : '')}>

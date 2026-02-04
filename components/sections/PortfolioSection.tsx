@@ -305,14 +305,14 @@ export default function PortfolioSection() {
           <h2 className="text-[26px] font-bold text-text-primary font-montserrat mt-2 text-center">Портфолио</h2>
         </div>
 
-        <div className="mt-4 flex flex-col gap-4 pb-20">
+        <div className="mt-4 flex flex-col items-center gap-4 pb-20 w-full px-4">
           {portfolioCases
             .filter((item) => item.isHero)
             .map((item) => (
               <button
                 key={item.id}
                 onClick={() => openCase(item)}
-                className="relative w-[95vw] max-w-[430px] mx-auto aspect-[4/5] max-h-[33vh] rounded-[22px] overflow-hidden shadow-[0_22px_50px_rgba(0,0,0,0.55)] bg-black/40 transition-transform duration-300 ease-out active:translate-y-0.5"
+                className="relative w-full max-w-[430px] mx-auto aspect-[4/5] max-h-[33vh] rounded-[22px] overflow-hidden shadow-[0_22px_50px_rgba(0,0,0,0.55)] bg-black/40 transition-transform duration-300 ease-out active:translate-y-0.5"
               >
                 <Image
                   src={item.coverSrc}
@@ -341,7 +341,7 @@ export default function PortfolioSection() {
               </button>
             ))}
 
-          <div className="w-[95vw] max-w-[430px] mx-auto flex items-start gap-4">
+          <div className="w-full max-w-[430px] mx-auto flex items-start justify-center gap-4">
             {portfolioCases
               .filter((item) => !item.isHero)
               .map((item) => (
