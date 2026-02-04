@@ -268,15 +268,15 @@ function ResultCard({ yesCount, timerText, onCTA, animKey }: ResultCardProps) {
                     maskComposite: 'exclude',
                   } as React.CSSProperties}
                 />
-                <div className="rounded-2xl bg-accent/10 px-4 py-3 text-left">
+                <div className="rounded-2xl border border-white/12 bg-white/5 backdrop-blur-xl px-4 py-3 text-left shadow-[0_18px_50px_rgba(0,0,0,0.45)]">
                 <div className="flex items-center justify-between">
                   <span className="text-xs text-text-secondary">Твой подарок</span>
                   <span className="text-xs text-text-secondary">{timerText}</span>
                 </div>
                 <div className="mt-1 flex items-center justify-between">
-                  <span className="text-4xl font-bold text-accent">{discount}</span>
+                  <span className="text-4xl font-bold text-white">{discount}</span>
                   {isHigh && (
-                    <span className="text-[10px] px-2 py-1 rounded-full border border-accent/40 text-accent">
+                    <span className="text-[10px] px-2 py-1 rounded-full border border-emerald-400/60 text-emerald-300">
                       Приоритет
                     </span>
                   )}

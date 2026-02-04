@@ -145,7 +145,12 @@ export function PricingCarousel() {
               )}
               style={{ width: cardWidth }}
               animate={{ x, y, rotate, scale, opacity }}
+              whileTap={{
+                scale: isActive ? 1.02 : 0.96,
+                boxShadow: '0 24px 70px rgba(245,196,180,0.18)',
+              }}
               transition={{ duration: 0.48, ease: easeOutCubic }}
+              whileTapTransition={{ duration: 0.28, ease: easeOutCubic }}
             >
               <div
                 className={cn(
