@@ -570,17 +570,19 @@ export default function QuizSection() {
       className="snap-section section-padding flex flex-col"
     >
       <div className="flex-1 flex flex-col pt-4">
-          <div className="px-0 pt-2 pb-3">
-            <p className="text-[18px] sm:text-[20px] text-center font-semibold text-text-primary font-montserrat">
-              Снимай | Монтируй | <span className="slow-shimmer font-bold">Удивляй</span>
-            </p>
+        <div className="pt-4 px-4">
+          <div className="text-center text-sm font-semibold text-text-primary font-montserrat">
+            Снимай | Монтируй | <span className="slow-shimmer font-bold">Удивляй</span>
           </div>
+          <h2 className="text-[26px] font-bold text-text-primary font-montserrat mt-2 text-center">Тест</h2>
+        </div>
+          
 
           {/* === Quiz Area === */}
           <div className="flex-1 flex flex-col relative">
             {!quizStarted ? (
             /* Start Swipe Card */
-            <div className="flex-1 flex flex-col items-center justify-center pb-[calc(env(safe-area-inset-bottom,0)+84px)]">
+            <div className="flex-1 flex flex-col items-center justify-center mt-2 pb-[calc(env(safe-area-inset-bottom,0)+84px)]">
               {/* 98% keeps breathing room from header and bottom nav */}
               <div className="relative w-full h-[calc(100dvh-140px)] min-h-[70vh]">
                 {/* Stack silhouettes (shadow only) */}
@@ -619,6 +621,18 @@ export default function QuizSection() {
                     alt=""
                     className="w-full h-full object-cover select-none pointer-events-none"
                     draggable={false}
+                  />
+                  <button
+                    type="button"
+                    onClick={handleStart}
+                    aria-label="Start quiz"
+                    className="absolute bottom-44 right-10 h-16 w-16 bg-transparent"
+                  />
+                  <button
+                    type="button"
+                    onClick={handleStart}
+                    aria-label="Start quiz"
+                    className="absolute bottom-46 left-11 h-16 w-16 bg-transparent"
                   />
                 </motion.div>
               </div>

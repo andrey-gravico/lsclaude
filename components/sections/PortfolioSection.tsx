@@ -305,7 +305,7 @@ export default function PortfolioSection() {
           <h2 className="text-[26px] font-bold text-text-primary font-montserrat mt-2 text-center">Портфолио</h2>
         </div>
 
-        <div className="mt-4 flex flex-col items-center gap-4 pb-20 w-full px-4">
+        <div className="mt-4 flex flex-col items-center gap-4 pb-20 w-full mt-8 px-4">
           {portfolioCases
             .filter((item) => item.isHero)
             .map((item) => (

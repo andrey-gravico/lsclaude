@@ -211,7 +211,7 @@ export default function ProgramSection() {
       </header>
 
       {/* === MAIN CONTENT === */}
-      <div className="flex-1 flex flex-col">
+      <div className="flex-1 flex flex-col mt-5">
         {/* === Аватар + Кнопки в одной строке === */}
         <div className="flex items-center gap-3 px-0 py-3">
           {/* Аватар с круговым текстом "Обо мне" */}

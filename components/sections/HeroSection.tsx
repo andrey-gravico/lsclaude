@@ -49,7 +49,7 @@ export default function HeroSection() {
       {/* === MAIN CONTENT === */}
       <div className="flex-1 flex flex-col justify-center py-2">
         {/* === Иконка "обо мне" + TITLE в одном контейнере === */}
-        <div className="flex items-center justify-between mb-4">
+        <div className="flex items-center justify-between mt-auto mb-4">
           {/* TITLE справа */}
           <div className="text-left">
             <motion.h1
@@ -106,12 +106,10 @@ export default function HeroSection() {
               </div>
             </button>
           </motion.div>
-
-
         </div>
 
         {/* === BEFORE/AFTER SLIDER (уменьшенный) === */}
-        <div className="w-full max-w-[380px] mx-auto">
+        <div className="w-full max-w-[380px] mx-auto mt-auto">
   <motion.div
     initial={{ opacity: 0, scale: 0.95 }}
     animate={{ opacity: 1, scale: 1 }}
