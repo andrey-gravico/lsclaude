@@ -12,7 +12,7 @@ export const INSTAGRAM_LINK = 'https://instagram.com/littlesveta';
 
 // ПЛЕЙСХОЛДЕРЫ
 export const IMAGES = {
-  avatar: PLACEHOLDER_AVATAR,
+  avatar: '/images/ava.png',
   before: PLACEHOLDER_BEFORE,
   after: PLACEHOLDER_AFTER,
 };
@@ -247,20 +247,15 @@ export const PORTFOLIO_CASES: PortfolioCase[] = [
     label: 'Outdoor',
     title: 'Outdoor съёмки',
     subtitle: 'Естественный свет · движение · атмосфера',
-    coverSrc: '/images/program/1-5.png',
+    coverSrc: '/images/portfolio/outdoor/1-5.png',
     badge: 'Теплота света',
     badgeClass: 'bg-accent text-black',
     isHero: true,
     items: [
-      { id: 'outdoor-cover', type: 'image', src: '/images/program/1-5.png' },
-      { id: 'outdoor-process', type: 'image', src: '/images/portfolio/story-1.jpg' },
-      { id: 'outdoor-backstage', type: 'image', src: '/images/portfolio/story-2.jpg' },
-      {
-        id: 'outdoor-final',
-        type: 'video',
-        src: '/images/portfolio/story-3.mp4',
-        posterSrc: '/images/portfolio/story-3-poster.jpg',
-      },
+      { id: 'outdoor-1', type: 'image', src: '/images/portfolio/outdoor/1-5.png' },
+      { id: 'outdoor-2', type: 'image', src: '/images/portfolio/outdoor/1-4.jpg' },
+      { id: 'outdoor-3', type: 'image', src: '/images/portfolio/outdoor/1-7.png' },
+      { id: 'outdoor-4', type: 'image', src: '/images/portfolio/outdoor/2-1.jpg' },
     ],
   },
   {
@@ -268,14 +263,14 @@ export const PORTFOLIO_CASES: PortfolioCase[] = [
     label: 'Студийные',
     title: 'Студийные съёмки',
     subtitle: 'Мягкий свет · fashion',
-    coverSrc: '/images/program/2-1.jpg',
+    coverSrc: '/images/portfolio/indoor/2-1.jpg',
     badge: 'Скин-тон',
     badgeClass: 'bg-emerald-400 text-black',
     items: [
-      { id: 'studio-cover', type: 'image', src: '/images/program/2-1.jpg' },
-      { id: 'studio-process', type: 'image', src: '/images/portfolio/story-2.jpg' },
-      { id: 'studio-backstage', type: 'image', src: '/images/portfolio/story-1.jpg' },
-      { id: 'studio-final', type: 'image', src: '/images/portfolio/cover-4.jpg' },
+      { id: 'studio-1', type: 'image', src: '/images/portfolio/indoor/2-1.jpg' },
+      { id: 'studio-2', type: 'image', src: '/images/portfolio/indoor/2-2.jpg' },
+      { id: 'studio-3', type: 'image', src: '/images/portfolio/indoor/1-3.jpg' },
+      { id: 'studio-4', type: 'image', src: '/images/portfolio/indoor/1-4.jpg' },
     ],
   },
   {
@@ -283,14 +278,14 @@ export const PORTFOLIO_CASES: PortfolioCase[] = [
     label: 'Свадьбы',
     title: 'Свадьбы',
     subtitle: 'Эмоции · ритуал · тепло',
-    coverSrc: '/images/program/2-3.jpg',
+    coverSrc: '/images/portfolio/wedding/2-3.jpg',
     badge: 'Живые кадры',
     badgeClass: 'bg-rose-400 text-black',
     items: [
-      { id: 'weddings-cover', type: 'image', src: '/images/program/2-3.jpg' },
-      { id: 'weddings-process', type: 'image', src: '/images/portfolio/cover-5.jpg' },
-      { id: 'weddings-backstage', type: 'image', src: '/images/portfolio/story-2.jpg' },
-      { id: 'weddings-final', type: 'image', src: '/images/portfolio/story-1.jpg' },
+      { id: 'weddings-1', type: 'image', src: '/images/portfolio/wedding/2-3.jpg' },
+      { id: 'weddings-2', type: 'image', src: '/images/portfolio/wedding/2-4.jpg' },
+      { id: 'weddings-3', type: 'image', src: '/images/portfolio/wedding/2-5.jpg' },
+      { id: 'weddings-4', type: 'image', src: '/images/portfolio/wedding/3-6.jpg' },
     ],
   },
 ];

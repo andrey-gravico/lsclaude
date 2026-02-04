@@ -168,7 +168,7 @@ export default function HeroSection() {
                 src={IMAGES.avatar}
                 alt={ABOUT_TEACHER.name}
                 fill
-                className="object-cover"
+                className="object-cover rounded-full"
                 unoptimized
               />
             </div>
