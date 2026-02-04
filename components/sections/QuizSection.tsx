@@ -604,15 +604,15 @@ export default function QuizSection() {
             <div className="flex-1 flex flex-col justify-end pb-[calc(env(safe-area-inset-bottom,0)+20px)] mb-15 px-4">
               <div
                 ref={sliderTrackRef}
-                className="relative w-full max-w-[420px] h-14 mx-auto rounded-full backdrop-blur-lg border border-white/25 overflow-hidden"
+                className="relative w-full max-w-[420px] h-14 mx-auto rounded-full backdrop-blur-lg border border-amber-200/25 overflow-hidden"
                 style={{
                   background:
-                    'linear-gradient(90deg, rgba(34,197,94,0.22) 0%, rgba(34,197,94,0.18) 20%, rgba(255,255,255,0.08) 55%, rgba(255,255,255,0.04) 100%)',
+                    'radial-gradient(120% 120% at 90% 50%, rgba(255,228,163,0.25) 0%, rgba(255,228,163,0.15) 30%, rgba(255,255,255,0.06) 55%, rgba(0,0,0,0.1) 100%)',
                 }}
               >
                 <div className="absolute inset-0 pointer-events-none">
                   <div className="absolute inset-0 bg-white/5" />
-                  <div className="absolute top-0 left-0 right-0 h-[1px] bg-white/25" />
+                  <div className="absolute top-0 left-0 right-0 h-[1px] bg-amber-100/30" />
                 </div>
                 <div className="absolute inset-0 flex items-center justify-center text-[12px] tracking-[0.15em] uppercase text-white/80 pointer-events-none">
                   Потяни, чтобы начать
@@ -634,7 +634,7 @@ export default function QuizSection() {
                     }
                     animate(sliderX, 0, { duration: 0.2, ease: 'easeOut' });
                   }}
-                  className="absolute left-1 top-1 h-12 w-12 rounded-full bg-emerald-400 text-white shadow-[0_10px_20px_rgba(16,185,129,0.45)] flex items-center justify-center active:scale-[0.98]"
+                  className="absolute left-1 top-1 h-12 w-18 rounded-full bg-grey-300/30 text-white shadow-[0_10px_20px_rgba(16,185,129,0.45)] flex items-center justify-center active:scale-[0.98]"
                   aria-label="Начать тест"
                 >
                   <img src="/images/icons/yes.png" alt="" className="w-5 h-5" draggable={false} />
