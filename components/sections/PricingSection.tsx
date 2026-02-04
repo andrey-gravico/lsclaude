@@ -148,7 +148,11 @@ export function PricingCarousel() {
               whileTap={{
                 scale: isActive ? 1.02 : 0.96,
               }}
-              transition={{ duration: 0.48, ease: easeOutCubic }}
+              transition={{
+                duration: 0.55,
+                ease: easeOutCubic,
+                opacity: { duration: 0.05, ease: 'easeOut' },
+              }}
             >
               <div
                 className={cn(
