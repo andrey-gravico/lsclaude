@@ -333,10 +333,13 @@ export default function QuizSection() {
   const [resultAnimKey, setResultAnimKey] = useState(0);
   const [discountStart, setDiscountStart] = useState<number | null>(null);
   const [timerText, setTimerText] = useState('72:00:00');
-  const startCardRef = useRef<HTMLDivElement>(null);
+  const cardMeasureRef = useRef<HTMLDivElement>(null);
   const sectionRef = useRef<HTMLElement>(null);
-  const [startAnimKey, setStartAnimKey] = useState(0);
-  const [startCardWidth, setStartCardWidth] = useState(0);
+  const [cardWidth, setCardWidth] = useState(0);
+  const sliderTrackRef = useRef<HTMLDivElement>(null);
+  const sliderHandleRef = useRef<HTMLButtonElement>(null);
+  const [sliderMax, setSliderMax] = useState(0);
+  const [sliderDragging, setSliderDragging] = useState(false);
   const pointerStartRef = useRef<{ x: number; y: number } | null>(null);
   const dragLockRef = useRef<'x' | 'y' | null>(null);
   const scrollContainerRef = useRef<HTMLElement | null>(null);
@@ -344,16 +347,30 @@ export default function QuizSection() {
   const scrollTouchActionRef = useRef<string | null>(null);
   const scrollWebkitRef = useRef<string | null>(null);
   const totalCards = SWIPE_QUIZ_CARDS.length;
+  const sliderX = useMotionValue(0);
 
   useEffect(() => {
     const updateWidth = () => {
-      if (startCardRef.current) {
-        setStartCardWidth(startCardRef.current.offsetWidth);
+      if (cardMeasureRef.current) {
+        setCardWidth(cardMeasureRef.current.offsetWidth);
       }
     };
     updateWidth();
     window.addEventListener('resize', updateWidth);
     return () => window.removeEventListener('resize', updateWidth);
+  }, []);
+
+  useEffect(() => {
+    const updateSlider = () => {
+      const track = sliderTrackRef.current;
+      const handle = sliderHandleRef.current;
+      if (!track || !handle) return;
+      const padding = 4;
+      setSliderMax(Math.max(0, track.offsetWidth - handle.offsetWidth - padding * 2));
+    };
+    updateSlider();
+    window.addEventListener('resize', updateSlider);
+    return () => window.removeEventListener('resize', updateSlider);
   }, []);
 
   useEffect(() => {
@@ -452,6 +469,10 @@ export default function QuizSection() {
     const startThreshold = 8;
     const extraX = 4;
 
+    if (!quizStarted || quizComplete) {
+      return;
+    }
+
     if (!dragLockRef.current && (absX > startThreshold || absY > startThreshold)) {
       const rightSwipe = dx > 0;
       const xBias = rightSwipe ? 0.6 : 1.2;
@@ -460,9 +481,7 @@ export default function QuizSection() {
         lockHorizontal();
       } else if (absY > absX * 1.5) {
         dragLockRef.current = 'y';
-        if (!quizStarted || quizComplete) {
-          unlockHorizontal();
-        }
+        unlockHorizontal();
       }
     }
 
@@ -479,26 +498,9 @@ export default function QuizSection() {
     }
   };
 
-  useEffect(() => {
-    const node = sectionRef.current;
-    if (!node) return;
-    const observer = new IntersectionObserver(
-      (entries) => {
-        entries.forEach((entry) => {
-          if (entry.isIntersecting && !quizStarted) {
-            setStartAnimKey((prev) => prev + 1);
-          }
-        });
-      },
-      { root: document.querySelector('.snap-container'), threshold: 0.6 }
-    );
-    observer.observe(node);
-    return () => observer.disconnect();
-  }, [quizStarted]);
-
   const swipeX = useMotionValue(0);
-  const swipeThreshold = startCardWidth ? startCardWidth * 0.4 : 160;
-  const visualThreshold = startCardWidth ? startCardWidth * 0.9 : 320;
+  const swipeThreshold = cardWidth ? cardWidth * 0.4 : 160;
+  const visualThreshold = cardWidth ? cardWidth * 0.9 : 320;
   const swipeProgress = useTransform(swipeX, (value) => Math.min(Math.abs(value) / visualThreshold, 1));
   const leftProgress = useTransform(swipeX, (value) => (value < 0 ? Math.min(-value / swipeThreshold, 1) : 0));
   const rightProgress = useTransform(swipeX, (value) => (value > 0 ? Math.min(value / swipeThreshold, 1) : 0));
@@ -513,6 +515,24 @@ export default function QuizSection() {
     swipeX.stop();
     swipeX.set(0);
   }, [cards[0]?.id, swipeX]);
+
+  useEffect(() => {
+    if (!quizStarted) {
+      sliderX.stop();
+      sliderX.set(0);
+    }
+  }, [quizStarted, sliderX]);
+
+  useEffect(() => {
+    if (quizStarted || sliderDragging) return;
+    const controls = animate(sliderX, [0, 10, 0], {
+      duration: 1.6,
+      ease: 'easeInOut',
+      repeat: Infinity,
+      repeatDelay: 0.6,
+    });
+    return () => controls.stop();
+  }, [quizStarted, sliderDragging, sliderX]);
 
   useEffect(() => {
     if (!cards[1]?.image) return;
@@ -555,19 +575,18 @@ export default function QuizSection() {
     setIsConfirmOpen(false);
   };
 
-  const handleStart = () => {
-    setQuizStarted(true);
-  };
-
   const currentCardNumber = totalCards - cards.length + 1;
-  // Start swipe threshold: 35% of card width (fallback 120px).
-  const startSwipeThreshold = startCardWidth ? startCardWidth * 0.35 : 120;
-
   return (
     <section
       id="quiz"
       ref={sectionRef}
-      className="snap-section section-padding flex flex-col"
+      className="snap-section section-padding flex flex-col relative"
+      style={!quizStarted ? {
+        backgroundImage: "url('/images/test/quizbg.png')",
+        backgroundSize: 'cover',
+        backgroundPosition: 'center',
+        backgroundRepeat: 'no-repeat',
+      } : undefined}
     >
       <div className="flex-1 flex flex-col pt-4">
         <div className="pt-4 px-4">
@@ -581,63 +600,48 @@ export default function QuizSection() {
           {/* === Quiz Area === */}
           <div className="flex-1 flex flex-col relative">
             {!quizStarted ? (
-            /* Start Swipe Card */
-            <div className="flex-1 flex flex-col items-center justify-center mt-2 pb-[calc(env(safe-area-inset-bottom,0)+84px)]">
-              {/* 98% keeps breathing room from header and bottom nav */}
-              <div className="relative w-full h-[calc(100dvh-140px)] min-h-[70vh]">
-                {/* Stack silhouettes (shadow only) */}
-                <div className="absolute -inset-4 rounded-[32px] bg-transparent blur-[14px]" />
-                <div className="absolute inset-0 scale-[0.985] rounded-[24px]  shadow-[0_10px_28px_rgba(245,196,180,0.05)]" />
-
-                <motion.div
-                  ref={startCardRef}
-                  key={startAnimKey}
-                  // Fade-in on section entry + paused drift (left-center-pause-right-center-pause).
-                  initial={false}
-                  animate={{ x: [0, -7, 0, 0, 7, 0, 0] }}
-                  transition={{
-                    x: { duration: 6, repeat: Infinity, ease: 'easeInOut', times: [0, 0.2, 0.4, 0.55, 0.75, 0.9, 1] },
-                  }}
+            /* Start Screen */
+            <div className="flex-1 flex flex-col justify-end pb-[calc(env(safe-area-inset-bottom,0)+20px)] mb-15 px-4">
+              <div
+                ref={sliderTrackRef}
+                className="relative w-full max-w-[420px] h-14 mx-auto rounded-full backdrop-blur-lg border border-white/25 overflow-hidden"
+                style={{
+                  background:
+                    'linear-gradient(90deg, rgba(34,197,94,0.22) 0%, rgba(34,197,94,0.18) 20%, rgba(255,255,255,0.08) 55%, rgba(255,255,255,0.04) 100%)',
+                }}
+              >
+                <div className="absolute inset-0 pointer-events-none">
+                  <div className="absolute inset-0 bg-white/5" />
+                  <div className="absolute top-0 left-0 right-0 h-[1px] bg-white/25" />
+                </div>
+                <div className="absolute inset-0 flex items-center justify-center text-[12px] tracking-[0.15em] uppercase text-white/80 pointer-events-none">
+                  Потяни, чтобы начать
+                </div>
+                <motion.button
+                  ref={sliderHandleRef}
+                  type="button"
                   drag="x"
-                  dragConstraints={{ left: 0, right: 0 }}
-                  dragElastic={0.6}
-                  dragMomentum={false}
-                  onPointerDown={handlePointerDown}
-                  onPointerMove={handlePointerMove}
-                  onPointerUp={handlePointerUp}
-                  onPointerCancel={handlePointerUp}
-                  onDragEnd={(_, info) => {
-                    if (Math.abs(info.offset.x) >= startSwipeThreshold) {
-                      handleStart();
+                  dragConstraints={{ left: 0, right: sliderMax }}
+                  dragElastic={0}
+                  style={{ x: sliderX }}
+                  onDragStart={() => setSliderDragging(true)}
+                  onDragEnd={() => {
+                    setSliderDragging(false);
+                    if (sliderX.get() >= sliderMax * 0.85) {
+                      setQuizStarted(true);
+                      sliderX.set(0);
+                      return;
                     }
+                    animate(sliderX, 0, { duration: 0.2, ease: 'easeOut' });
                   }}
-                  whileDrag={{ scale: 0.99 }}
-                  whileTap={{ scale: 1.02 }} // Touch feedback (slight lift)
-                  style={{ touchAction: 'pan-y' }}
-                  className="relative z-10 w-full h-full rounded-[24px] overflow-hidden shadow-[0_10px_26px_rgba(245,196,180,0.025),0_6px_18px_rgba(0,0,0,0.3)]"
+                  className="absolute left-1 top-1 h-12 w-12 rounded-full bg-emerald-400 text-white shadow-[0_10px_20px_rgba(16,185,129,0.45)] flex items-center justify-center active:scale-[0.98]"
+                  aria-label="Начать тест"
                 >
-                  <img
-                    src="/images/test/quizhero.png"
-                    alt=""
-                    className="w-full h-full object-cover select-none pointer-events-none"
-                    draggable={false}
-                  />
-                  <button
-                    type="button"
-                    onClick={handleStart}
-                    aria-label="Start quiz"
-                    className="absolute bottom-44 right-10 h-16 w-16 bg-transparent"
-                  />
-                  <button
-                    type="button"
-                    onClick={handleStart}
-                    aria-label="Start quiz"
-                    className="absolute bottom-46 left-11 h-16 w-16 bg-transparent"
-                  />
-                </motion.div>
+                  <img src="/images/icons/yes.png" alt="" className="w-5 h-5" draggable={false} />
+                </motion.button>
               </div>
             </div>
-          ) : !quizComplete ? (
+            ) : !quizComplete ? (
             /* Quiz Cards */
             <motion.div
               initial={{ opacity: 0 }}
@@ -645,7 +649,7 @@ export default function QuizSection() {
               transition={{ duration: 2, ease: 'easeOut' }}
               className="flex-1 flex flex-col overflow-hidden"
             >
-              <div className="relative w-[98%] h-[calc(100dvh-140px)] min-h-[70vh] mx-auto flex-none">
+              <div ref={cardMeasureRef} className="relative w-[98%] h-[calc(100dvh-140px)] min-h-[70vh] mx-auto flex-none">
                 {/* Exit button */}
                 <button
                   onClick={handleExitQuiz}
