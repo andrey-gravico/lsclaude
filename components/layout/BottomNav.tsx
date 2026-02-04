@@ -13,7 +13,7 @@ const icons: Record<string, string> = {
   camera: '/images/icons/portfolio.png',
   star: '/images/icons/review.png',
   help: '/images/icons/faqq.png',
-  price: '',
+  price: '/images/icons/price.png',
 };
 
 export default function BottomNav() {

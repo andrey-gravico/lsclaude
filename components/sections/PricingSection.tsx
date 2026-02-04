@@ -112,7 +112,7 @@ export function PricingCarousel() {
     >
       <motion.div
         ref={containerRef}
-        className="relative w-full flex-1 flex items-center justify-center overflow-hidden"
+        className="relative w-full flex-1 flex items-center justify-center overflow-visible"
         drag="x"
         dragControls={dragControls}
         dragListener={false}
@@ -147,16 +147,12 @@ export function PricingCarousel() {
               animate={{ x, y, rotate, scale, opacity }}
               whileTap={{
                 scale: isActive ? 1.02 : 0.96,
-                boxShadow: '0 24px 70px rgba(245,196,180,0.18)',
               }}
               transition={{ duration: 0.48, ease: easeOutCubic }}
             >
               <div
                 className={cn(
-                  'relative h-[66dvh] max-h-[560px] min-h-[460px] rounded-[26px] border border-white/12 bg-white/5 backdrop-blur-xl shadow-[0_18px_60px_rgba(0,0,0,0.65)] max-[360px]:h-[62dvh] max-[360px]:min-h-[420px]',
-                  isActive
-                    ? 'shadow-[0_30px_80px_rgba(0,0,0,0.8),0_0_0_1px_rgba(255,255,255,0.06)]'
-                    : 'shadow-[0_14px_40px_rgba(0,0,0,0.5)]'
+                  'relative h-[66dvh] max-h-[560px] min-h-[460px] rounded-[26px] border border-white/12 bg-white/5 backdrop-blur-lg shadow-[0_8px_20px_rgba(0,0,0,0.35)] max-[360px]:h-[62dvh] max-[360px]:min-h-[420px]'
                 )}
                 onClick={() => handleCardClick(index)}
                 role="button"
@@ -225,8 +221,6 @@ export function PricingCarousel() {
           );
         })}
 
-        <div className="pointer-events-none absolute inset-y-0 left-0 w-12 bg-gradient-to-r from-black/70 to-transparent" />
-        <div className="pointer-events-none absolute inset-y-0 right-0 w-12 bg-gradient-to-l from-black/70 to-transparent" />
         <div className="pointer-events-none absolute inset-y-0 left-2 flex items-center">
           <span className="text-5xl text-white/90 drop-shadow-[0_6px_18px_rgba(0,0,0,0.45)]">‹</span>
         </div>
