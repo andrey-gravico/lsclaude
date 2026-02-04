@@ -347,7 +347,13 @@ export default function QuizSection() {
   const scrollTouchActionRef = useRef<string | null>(null);
   const scrollWebkitRef = useRef<string | null>(null);
   const totalCards = SWIPE_QUIZ_CARDS.length;
+<<<<<<< HEAD
   const sliderX = useMotionValue(0);
+=======
+  const sliderHandleX = useMotionValue(0);
+  const sliderDragActive = useMotionValue(0);
+  const trackClip = useMotionValue('inset(0px 0px 0px 0px round 24px)');
+>>>>>>> 16838a0 (правки в quizsection5)
 
   useEffect(() => {
     const updateWidth = () => {
@@ -361,6 +367,25 @@ export default function QuizSection() {
   }, []);
 
   useEffect(() => {
+<<<<<<< HEAD
+=======
+    const updateClip = () => {
+      const value = sliderHandleX.get();
+      const active = sliderDragActive.get();
+      const left = active > 0.5 ? Math.max(0, value + 1) : 0;
+      trackClip.set(`inset(0px 0px 0px ${left}px round 24px)`);
+    };
+    const unsubX = sliderHandleX.on('change', updateClip);
+    const unsubActive = sliderDragActive.on('change', updateClip);
+    updateClip();
+    return () => {
+      unsubX();
+      unsubActive();
+    };
+  }, [sliderHandleX, sliderDragActive, trackClip]);
+
+  useEffect(() => {
+>>>>>>> 16838a0 (правки в quizsection5)
     const updateSlider = () => {
       const track = sliderTrackRef.current;
       const handle = sliderHandleRef.current;
@@ -518,6 +543,7 @@ export default function QuizSection() {
 
   useEffect(() => {
     if (!quizStarted) {
+<<<<<<< HEAD
       sliderX.stop();
       sliderX.set(0);
     }
@@ -526,13 +552,28 @@ export default function QuizSection() {
   useEffect(() => {
     if (quizStarted || sliderDragging) return;
     const controls = animate(sliderX, [0, 10, 0], {
+=======
+      sliderHandleX.stop();
+      sliderHandleX.set(0);
+      sliderDragActive.set(0);
+    }
+  }, [quizStarted, sliderHandleX, sliderDragActive]);
+
+  useEffect(() => {
+    if (quizStarted || sliderDragging) return;
+    const controls = animate(sliderHandleX, [0, 10, 0], {
+>>>>>>> 16838a0 (правки в quizsection5)
       duration: 1.6,
       ease: 'easeInOut',
       repeat: Infinity,
       repeatDelay: 0.6,
     });
     return () => controls.stop();
+<<<<<<< HEAD
   }, [quizStarted, sliderDragging, sliderX]);
+=======
+  }, [quizStarted, sliderDragging, sliderHandleX]);
+>>>>>>> 16838a0 (правки в quizsection5)
 
   useEffect(() => {
     if (!cards[1]?.image) return;
@@ -604,6 +645,7 @@ export default function QuizSection() {
             <div className="flex-1 flex flex-col justify-end pb-[calc(env(safe-area-inset-bottom,0)+20px)] mb-15 px-4">
               <div
                 ref={sliderTrackRef}
+<<<<<<< HEAD
                 className="relative w-full max-w-[420px] h-14 mx-auto rounded-full backdrop-blur-lg border border-amber-200/25 overflow-hidden"
                 style={{
                   background:
@@ -617,12 +659,45 @@ export default function QuizSection() {
                 <div className="absolute inset-0 flex items-center justify-center text-[12px] tracking-[0.15em] uppercase text-white/80 pointer-events-none">
                   Потяни, чтобы начать
                 </div>
+=======
+                className="relative w-full max-w-[420px] h-14 mx-auto"
+                style={{ '--btn-w': '4.5rem' } as React.CSSProperties}
+              >
+                <motion.div
+                  style={{ clipPath: trackClip }}
+                  className="absolute inset-0 rounded-full backdrop-blur-lg border border-amber-200/25 overflow-hidden"
+                >
+                  <div
+                    className="absolute inset-0"
+                    style={{
+                      background:
+                        'radial-gradient(120% 120% at 90% 50%, rgba(255,228,163,0.25) 0%, rgba(255,228,163,0.15) 30%, rgba(255,255,255,0.06) 55%, rgba(0,0,0,0.1) 100%)',
+                    }}
+                  />
+                  <div className="absolute inset-0 pointer-events-none">
+                    <div className="absolute inset-0 bg-white/5" />
+                  </div>
+                  <motion.div
+                    animate={{ opacity: sliderDragging ? 0 : 1 }}
+                    transition={{ duration: 0.4 }}
+                    style={{
+                      left: 'calc(var(--btn-w) + (100% - var(--btn-w)) / 2)',
+                      top: '50%',
+                      transform: 'translate(-50%, -50%)',
+                    }}
+                    className="absolute text-[10px] font-semibold tracking-[0.15em] uppercase text-white/80 pointer-events-none whitespace-nowrap"
+                  >
+                    Потяни, чтобы начать
+                  </motion.div>
+                </motion.div>
+>>>>>>> 16838a0 (правки в quizsection5)
                 <motion.button
                   ref={sliderHandleRef}
                   type="button"
                   drag="x"
                   dragConstraints={{ left: 0, right: sliderMax }}
                   dragElastic={0}
+<<<<<<< HEAD
                   style={{ x: sliderX }}
                   onDragStart={() => setSliderDragging(true)}
                   onDragEnd={() => {
@@ -638,6 +713,28 @@ export default function QuizSection() {
                   aria-label="Начать тест"
                 >
                   <img src="/images/icons/yes.png" alt="" className="w-5 h-5" draggable={false} />
+=======
+                  style={{ x: sliderHandleX }}
+                  onDragStart={() => {
+                    setSliderDragging(true);
+                    sliderDragActive.set(1);
+                  }}
+                  onDragEnd={() => {
+                    setSliderDragging(false);
+                    if (sliderHandleX.get() >= sliderMax * 0.85) {
+                      setQuizStarted(true);
+                      sliderHandleX.set(0);
+                      sliderDragActive.set(0);
+                      return;
+                    }
+                    animate(sliderHandleX, 0, { duration: 0.2, ease: 'easeOut' });
+                    window.setTimeout(() => sliderDragActive.set(0), 210);
+                  }}
+                  className="absolute left-1 top-1 h-12 w-18 rounded-full bg-black/50 text-white shadow-[0_8px_16px_rgba(16,185,129,0.22)] flex items-center justify-center active:scale-[0.97]"
+                  aria-label="Потяни, чтобы начать"
+                >
+                  <img src="/images/icons/yes.png" alt="" className="w-6 h-6" draggable={false} />
+>>>>>>> 16838a0 (правки в quizsection5)
                 </motion.button>
               </div>
             </div>
